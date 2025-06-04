@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000-create-database-schemas
+      author: Andrejs Krilovs
+      changes:
+        - sql:
+            splitStatements: false
+            sql: >
+              CREATE SCHEMA IF NOT EXISTS dev;
+              CREATE SCHEMA IF NOT EXISTS test;
+              CREATE SCHEMA IF NOT EXISTS prod;

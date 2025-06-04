@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-user-table
+      author: Andrejs Krilovs
+      changes:
+        - createTable:
+            schemaName: dev
+            tableName: user_table
+            columns:
+              - column:
+                  name: ut_username
+                  type: VARCHAR(30)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: ut_password
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ut_email
+                  type: VARCHAR(35)
+              - column:
+                  name: ut_role
+                  type: VARCHAR(25)
+                  constraints:
+                    checkConstraint: >
+                      ut_role IN (
+                        'PRODUCT_OWNER',
+                        'BUSINESS_ANALYST',
+                        'SCRUM_MASTER',
+                        'SOFTWARE_DEVELOPER',
+                        'QA_SPECIALIST'
+                      )
+              - column:
+                  name: ut_registered
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ut_last_visit
+                  type: TIMESTAMP
