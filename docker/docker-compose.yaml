@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:17.4
+    container_name: pg_container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_tracker_db
+    volumes:
+      - ../docker-volumes:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: pg_adm_container
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: andrejs.krilovs.0507@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8888:80"
+    depends_on:
+      - db
