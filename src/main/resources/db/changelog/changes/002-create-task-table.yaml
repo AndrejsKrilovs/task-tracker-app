@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-task-table
+      author: Andrejs Krilovs
+      changes:
+        - createTable:
+            schemaName: dev
+            tableName: task_table
+            columns:
+              - column:
+                  name: tt_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: tt_title
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tt_description
+                  type: TEXT
+              - column:
+                  name: tt_status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+                    checkConstraint: >
+                      tt_status IN (
+                        'READY_FOR_DEVELOPMENT',
+                        'IN_DEVELOPMENT',
+                        'CODE_REVIEW',
+                        'READY_FOR_TEST',
+                        'IN_TESTING',
+                        'COMPLETED'
+                      )
+              - column:
+                  name: tt_created
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tt_user_id
+                  type: VARCHAR(30)
+        - addForeignKeyConstraint:
+            baseTableName: task_table
+            baseColumnNames: tt_user_id
+            baseTableSchemaName: dev
+            constraintName: fk_task_user
+            referencedTableName: user_table
+            referencedColumnNames: ut_username
+            referencedTableSchemaName: dev
+            onDelete: CASCADE
+            schemaName: dev
