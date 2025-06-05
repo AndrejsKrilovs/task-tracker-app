@@ -24,6 +24,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import java.util.Map;
+
 @Slf4j
 @PermitAll
 @Path("/api/v1/task-tracker/users")
@@ -66,6 +68,6 @@ public class UserFacade {
     log.info("Requested for login. User: '{}'", request.username());
     String result = executor.run(LoginCommand.class, request);
     log.info("Successfully logged in '{}' with status '{}'", request.username(), Response.Status.OK);
-    return Response.status(Response.Status.OK).entity(result).build();
+    return Response.status(Response.Status.OK).entity(Map.of("token", result)).build();
   }
 }
