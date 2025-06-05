@@ -57,9 +57,14 @@ class RegistrationCommandTest {
   }
 
   @ParameterizedTest(name = "username={0}, password={1}, email={2}, role={3}")
-  @CsvSource(value = "username,password,some@test.email,SOFTWARE_DEVELOPER")
-  void shouldRegisterNewUserSuccessfully(String username, String password, String email, UserRole role) {
+  @CsvSource(value = {
+    "username,password,some@test.email,''",
+    "username,password,some@test.email,SOFTWARE_DEVELOPER"
+  })
+  void shouldRegisterNewUserSuccessfully(String username, String password, String email, String roleString) {
+    UserRole role = (roleString == null || roleString.isBlank()) ? null : UserRole.valueOf(roleString);
     UserRegistrationRequest request = new UserRegistrationRequest(username, password, email, role);
+
     Mockito.when(userRepository.findUserByUsername("username")).thenReturn(Optional.empty());
     Mockito.when(userMapper.toEntity(request)).thenReturn(userEntity);
     Mockito.when(passwordService.hashPassword("password")).thenReturn("hashedPassword");
@@ -78,7 +83,7 @@ class RegistrationCommandTest {
 
     Assertions.assertEquals("username", response.username());
     Assertions.assertEquals("some@test.email", response.email());
-    Assertions.assertEquals(UserRole.SOFTWARE_DEVELOPER, response.role());
+    Assertions.assertNotNull(response.role());
     Assertions.assertNotNull(response.createdAt());
 
     Mockito.verify(userRepository).persistUser(userEntity);

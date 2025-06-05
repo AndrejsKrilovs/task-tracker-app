@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Schema(description = "Error response for failed API requests")
 public record ExceptionResponse(
-  @Schema(description = "Error status", examples = {"BAD_REQUEST", "CONFLICT"})
+  @Schema(description = "Error status", examples = {"BAD_REQUEST", "CONFLICT", "UNAUTHORIZED"})
   Response.Status status,
   LocalDateTime timestamp,
   String path,
