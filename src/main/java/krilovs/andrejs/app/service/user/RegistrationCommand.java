@@ -42,7 +42,6 @@ public class RegistrationCommand implements ServiceCommand<UserRegistrationReque
     User userEntity = userMapper.toEntity(input);
     userEntity.setPassword(passwordService.hashPassword(input.password()));
     userEntity.setCreatedAt(LocalDateTime.now());
-    userEntity.setRole(UserRole.UNKNOWN);
     userRepository.persistUser(userEntity);
 
     return userMapper.toDto(userEntity);

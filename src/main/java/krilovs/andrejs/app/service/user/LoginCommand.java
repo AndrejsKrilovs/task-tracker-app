@@ -6,11 +6,13 @@ import jakarta.inject.Inject;
 import krilovs.andrejs.app.config.ConfigConstants;
 import krilovs.andrejs.app.dto.UserLoginRequest;
 import krilovs.andrejs.app.entity.User;
+import krilovs.andrejs.app.entity.UserRole;
 import krilovs.andrejs.app.repository.UserRepository;
 import krilovs.andrejs.app.service.PasswordService;
 import krilovs.andrejs.app.service.ServiceCommand;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class LoginCommand implements ServiceCommand<UserLoginRequest, String> {
     return Jwt.claims()
       .issuer(ConfigConstants.TASK_TRACKER_APP)
       .upn(user.getUsername())
-      .groups(user.getRole().name())
+      .groups(Objects.requireNonNullElse(user.getRole(), UserRole.UNKNOWN).name())
       .sign();
   }
 }
