@@ -13,10 +13,10 @@ import krilovs.andrejs.app.repository.UserRepository;
 import krilovs.andrejs.app.service.PasswordService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -41,10 +41,8 @@ class RegistrationCommandTest {
   @Mock
   PasswordService passwordService;
 
-  Validator validator;
-
-  UserRegistrationRequest validRequest;
   User userEntity;
+  Validator validator;
 
   @BeforeEach
   void setUp() {
@@ -52,20 +50,18 @@ class RegistrationCommandTest {
       validator = validatorFactory.getValidator();
     }
 
-    validRequest = new UserRegistrationRequest(
-      "username", "password", "some@test.email", UserRole.SOFTWARE_DEVELOPER
-    );
-
     userEntity = new User();
     userEntity.setUsername("username");
     userEntity.setEmail("some@test.email");
     userEntity.setRole(UserRole.SOFTWARE_DEVELOPER);
   }
 
-  @Test
-  void shouldRegisterNewUserSuccessfully() {
+  @ParameterizedTest(name = "username={0}, password={1}, email={2}, role={3}")
+  @CsvSource(value = "username,password,some@test.email,SOFTWARE_DEVELOPER")
+  void shouldRegisterNewUserSuccessfully(String username, String password, String email, UserRole role) {
+    UserRegistrationRequest request = new UserRegistrationRequest(username, password, email, role);
     Mockito.when(userRepository.findUserByUsername("username")).thenReturn(Optional.empty());
-    Mockito.when(userMapper.toEntity(validRequest)).thenReturn(userEntity);
+    Mockito.when(userMapper.toEntity(request)).thenReturn(userEntity);
     Mockito.when(passwordService.hashPassword("password")).thenReturn("hashedPassword");
     Mockito.when(userMapper.toDto(Mockito.any())).thenAnswer(invocation -> {
       User user = invocation.getArgument(0);
@@ -78,7 +74,7 @@ class RegistrationCommandTest {
       );
     });
 
-    UserResponse response = registrationCommand.execute(validRequest);
+    UserResponse response = registrationCommand.execute(request);
 
     Assertions.assertEquals("username", response.username());
     Assertions.assertEquals("some@test.email", response.email());
@@ -89,27 +85,41 @@ class RegistrationCommandTest {
     Assertions.assertEquals("hashedPassword", userEntity.getPassword());
   }
 
-  @Test
-  void shouldThrowExceptionWhenUserAlreadyExists() {
+  @ParameterizedTest(name = "username={0}, password={1}, email={2}, role={3}")
+  @CsvSource(value = "username,password,some@test.email,SOFTWARE_DEVELOPER")
+  void shouldThrowExceptionWhenUserAlreadyExists(String username, String password, String email, UserRole role) {
+    UserRegistrationRequest request = new UserRegistrationRequest(username, password, email, role);
     Mockito.when(userRepository.findUserByUsername("username")).thenReturn(Optional.of(userEntity));
 
-    UserException ex = Assertions.assertThrows(UserException.class, () -> registrationCommand.execute(validRequest));
+    UserException ex = Assertions.assertThrows(UserException.class, () -> registrationCommand.execute(request));
     Assertions.assertTrue(ex.getMessage().contains("already exists"));
 
     Mockito.verify(userRepository, Mockito.never()).persistUser(Mockito.any(User.class));
   }
 
-  @Test
-  void shouldPassValidationsWithValidRequest() {
-    Set<ConstraintViolation<UserRegistrationRequest>> violations = validator.validate(validRequest);
+  @ParameterizedTest
+  @MethodSource("validRequests")
+  void shouldPassValidationsWithValidValues(UserRegistrationRequest request) {
+    Set<ConstraintViolation<UserRegistrationRequest>> violations = validator.validate(request);
     Assertions.assertTrue(violations.isEmpty());
   }
 
   @ParameterizedTest
   @MethodSource("invalidRequests")
-  void shouldFailValidationsWithIncorrectRequest(UserRegistrationRequest request) {
+  void shouldFailValidationsWithIncorrectValues(UserRegistrationRequest request) {
     Set<ConstraintViolation<UserRegistrationRequest>> violations = validator.validate(request);
     Assertions.assertFalse(violations.isEmpty());
+  }
+
+  static Stream<Arguments> validRequests() {
+    UserRegistrationRequest validRequest = new UserRegistrationRequest(
+      "username",
+      "pass",
+      "email@test.com",
+      UserRole.SOFTWARE_DEVELOPER
+    );
+
+    return Stream.of(Arguments.of(validRequest));
   }
 
   static Stream<Arguments> invalidRequests() {
