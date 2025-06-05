@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,10 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationCommandTest {
-
   @InjectMocks
   RegistrationCommand registrationCommand;
 
@@ -64,8 +67,8 @@ class RegistrationCommandTest {
     Mockito.when(userRepository.findUserByUsername("username")).thenReturn(Optional.empty());
     Mockito.when(userMapper.toEntity(validRequest)).thenReturn(userEntity);
     Mockito.when(passwordService.hashPassword("password")).thenReturn("hashedPassword");
-    Mockito.when(userMapper.toDto(Mockito.any())).thenAnswer(inv -> {
-      User user = inv.getArgument(0);
+    Mockito.when(userMapper.toDto(Mockito.any())).thenAnswer(invocation -> {
+      User user = invocation.getArgument(0);
       return new UserResponse(
         user.getUsername(),
         user.getEmail(),
@@ -102,10 +105,18 @@ class RegistrationCommandTest {
     Assertions.assertTrue(violations.isEmpty());
   }
 
-  @Test
-  void shouldFailValidationsWithIncorrectRequest() {
-    UserRegistrationRequest incorrectRequest = new UserRegistrationRequest(null, null, null, null);
-    Set<ConstraintViolation<UserRegistrationRequest>> violations = validator.validate(incorrectRequest);
+  @ParameterizedTest
+  @MethodSource("invalidRequests")
+  void shouldFailValidationsWithIncorrectRequest(UserRegistrationRequest request) {
+    Set<ConstraintViolation<UserRegistrationRequest>> violations = validator.validate(request);
     Assertions.assertFalse(violations.isEmpty());
+  }
+
+  static Stream<Arguments> invalidRequests() {
+    return Stream.of(
+      Arguments.of(new UserRegistrationRequest(null, "pass", "email@test.com", UserRole.SOFTWARE_DEVELOPER)),
+      Arguments.of(new UserRegistrationRequest("user", null, "email@test.com", UserRole.SOFTWARE_DEVELOPER)),
+      Arguments.of(new UserRegistrationRequest("user", "pass", "bad-email", UserRole.SOFTWARE_DEVELOPER))
+    );
   }
 }
