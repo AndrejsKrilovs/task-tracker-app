@@ -1,5 +1,7 @@
 package krilovs.andrejs.app.controller;
 
+import io.smallrye.jwt.build.Jwt;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -12,6 +14,9 @@ import jakarta.ws.rs.core.Response;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
+import krilovs.andrejs.app.entity.User;
+import krilovs.andrejs.app.repository.UserRepository;
+import krilovs.andrejs.app.service.PasswordService;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.user.RegistrationCommand;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +27,11 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import java.util.Optional;
+import java.util.Set;
+
 @Slf4j
+@PermitAll
 @Path("/api/v1/task-tracker/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -48,5 +57,28 @@ public class UserFacade {
     UserResponse result = executor.run(RegistrationCommand.class, request);
     log.info("Successfully registered user '{}' with status '{}'", request.username(), Response.Status.CREATED);
     return Response.status(Response.Status.CREATED).entity(result).build();
+  }
+
+  @Inject
+  UserRepository userRepository;
+
+  @Inject
+  PasswordService passwordService;
+
+  @POST
+  @Path("/login")
+  public Response login() {
+    Optional<User> userOpt = userRepository.findUserByUsername("andrejs_krilovs");
+    if (userOpt.isEmpty() || !passwordService.verifyPassword("password", userOpt.get().getPassword())) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+
+    String token = Jwt.claims()
+      .issuer("task-tracker-app")
+      .upn("andrejs_krilovs")
+      .groups(Set.of(userOpt.get().getRole().name()))
+      .sign();
+
+    return Response.ok(token).build();
   }
 }
