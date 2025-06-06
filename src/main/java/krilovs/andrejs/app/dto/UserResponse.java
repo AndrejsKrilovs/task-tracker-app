@@ -5,20 +5,49 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "User response. User response for register in our system")
 public record UserResponse(
-  @Schema(description = "Username", defaultValue = "username")
+  @Schema(
+    readOnly = true,
+    title = "Username",
+    description = "Represents user login"
+  )
   String username,
 
-  @Schema(description = "Email", defaultValue = "test@example.com")
+  @Schema(
+    readOnly = true,
+    title = "Email",
+    description = "Represents user email"
+  )
   String email,
 
-  @Schema(description = "User role", defaultValue = "SOFTWARE_DEVELOPER")
+  @Schema(
+    readOnly = true,
+    title = "User role",
+    anyOf = UserRole.class,
+    description = "Shows registered user role",
+    enumeration = {
+      "PRODUCT_OWNER",
+      "BUSINESS_ANALYST",
+      "SCRUM_MASTER",
+      "SOFTWARE_DEVELOPER",
+      "QA_SPECIALIST"
+    }
+  )
   UserRole role,
 
-  @Schema(description = "Date when user is created")
+  @Schema(
+    readOnly = true,
+    title = "Date when user is created",
+    description = "Date when user is created"
+  )
   LocalDateTime createdAt,
 
-  @Schema(description = "Date when user last time connected")
+  @Schema(
+    readOnly = true,
+    title = "Date when user last logged in",
+    description = "Date when user last logged in"
+  )
   LocalDateTime lastVisitAt
 ) {
 

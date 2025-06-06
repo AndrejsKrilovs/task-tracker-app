@@ -8,7 +8,7 @@ import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.entity.UserRole;
-import krilovs.andrejs.app.mapper.UserMapper;
+import krilovs.andrejs.app.mapper.user.UserMapper;
 import krilovs.andrejs.app.repository.UserRepository;
 import krilovs.andrejs.app.service.PasswordService;
 import org.junit.jupiter.api.Assertions;

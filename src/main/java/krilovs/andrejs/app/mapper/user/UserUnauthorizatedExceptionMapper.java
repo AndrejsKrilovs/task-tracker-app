@@ -1,4 +1,4 @@
-package krilovs.andrejs.app.mapper;
+package krilovs.andrejs.app.mapper.user;
 
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;

@@ -5,11 +5,19 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+@Schema(description = "User login request. Request to login in our system")
 public record UserLoginRequest(
   @NotNull(message = "Username is required")
   @NotBlank(message = "Username is required")
-  @Schema(description = "Username", defaultValue = "username")
   @Size(min = 4, max = 30, message = "Username must be between 4 and 30 characters")
+  @Schema(
+    minLength = 4,
+    maxLength = 30,
+    required = true,
+    title = "Username",
+    defaultValue = "username",
+    description = "Represents user login"
+  )
   String username,
 
   @NotNull(message = "Password is required")
