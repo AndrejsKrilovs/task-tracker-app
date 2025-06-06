@@ -23,14 +23,20 @@ public record UserRegistrationRequest(
 
   @NotNull(message = "Password is required")
   @NotBlank(message = "Password is required")
-  @Schema(description = "Password", defaultValue = "StrongPass123")
+  @Size(min = 4, max = 10, message = "Password must be between 4 and 10 characters")
+  @Schema(
+    minLength = 4,
+    maxLength = 10,
+    required = true,
+    writeOnly = true,
+    title = "Password",
+    defaultValue = "password",
+    description = "Represents user password"
+  )
   String password,
 
   @Email(message = "Invalid email format")
-  @Size(min = 3, max = 10, message = "Password must be between 3 and 10 characters")
   @Schema(
-    minLength = 3,
-    maxLength = 10,
     title = "Email",
     defaultValue = "some@test.email",
     description = "Represents user email"
