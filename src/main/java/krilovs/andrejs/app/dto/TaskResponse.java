@@ -1,30 +1,20 @@
 package krilovs.andrejs.app.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import krilovs.andrejs.app.entity.TaskStatus;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
 @Schema(description = "Task request or response. Can be shown to user, also can be requested from same user")
-public record TaskRequestResponse(
+public record TaskResponse(
   @Schema(
-    readOnly = true,
     title = "Identifier",
     defaultValue = "0",
     description = "Task identifier"
   )
   Long id,
 
-  @NotNull(message = "Task title is required")
-  @NotBlank(message = "Task title is required")
-  @Size(min = 5, max = 50, message = "Task title must be between 5 and 50 characters")
   @Schema(
-    minLength = 5,
-    maxLength = 50,
-    required = true,
     title = "Title",
     defaultValue = "Some new task",
     description = "Represents defined task title"
@@ -38,12 +28,8 @@ public record TaskRequestResponse(
   )
   String description,
 
-  @NotNull(message = "Task status should be defined")
-  @NotBlank(message = "Task status should be defined")
   @Schema(
-    required = true,
     title = "Status",
-    anyOf = TaskStatus.class,
     description = "Shows status for current task",
     defaultValue = "READY_FOR_DEVELOPMENT",
     enumeration = {
@@ -58,10 +44,16 @@ public record TaskRequestResponse(
   TaskStatus status,
 
   @Schema(
-    readOnly = true,
-    title = "Created at",
-    description = "Shows task identifier"
+    title = "Creation date",
+    description = "Shows task creation date"
   )
-  LocalDateTime createdAt
+  LocalDateTime createdAt,
+
+  @Schema(
+    title = "Assigned person",
+    description = "User whom assigned task at this moment",
+    defaultValue = "Some task description"
+  )
+  String user
 ) {
 }
