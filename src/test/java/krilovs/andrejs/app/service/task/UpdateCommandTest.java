@@ -32,9 +32,9 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
-class CreateCommandTest {
+class UpdateCommandTest {
   @InjectMocks
-  CreateCommand createCommand;
+  UpdateCommand updateCommand;
 
   @Mock
   TaskRepository taskRepository;
@@ -61,18 +61,19 @@ class CreateCommandTest {
 
     taskEntity = new Task();
     taskEntity.setId(1L);
-    taskEntity.setTitle("Test task");
+    taskEntity.setTitle("Updated task");
     taskEntity.setUser(userEntity);
     taskEntity.setCreatedAt(LocalDateTime.now());
-    taskEntity.setDescription("Some task description");
+    taskEntity.setDescription("Updated task description");
+    taskEntity.setStatus(TaskStatus.READY_FOR_DEVELOPMENT);
   }
 
   @ParameterizedTest(name = "username={0}, title={1}, description={2}")
   @CsvSource(value = {
-    "username,Test task,''",
-    "username,Test task,Some task description"
+    "username,Updated task,''",
+    "username,Updated task,Updated task description"
   })
-  void shouldRegisterNewTaskSuccessfully(String username, String title, String description) {
+  void shouldUpdateTaskSuccessfully(String username, String title, String description) {
     CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(username, title, description);
 
     Mockito.when(userRepository.findUserByUsername(username)).thenReturn(Optional.of(userEntity));
@@ -89,46 +90,45 @@ class CreateCommandTest {
       );
     });
 
-    TaskResponse response = createCommand.execute(request);
+    TaskResponse response = updateCommand.execute(request);
 
     Assertions.assertEquals("username", response.user());
-    Assertions.assertEquals("Test task", response.title());
-    Assertions.assertNotNull(response.createdAt());
+    Assertions.assertEquals("Updated task", response.title());
     Assertions.assertNotNull(response.status());
-    Assertions.assertEquals(TaskStatus.READY_FOR_DEVELOPMENT, response.status());
+    Assertions.assertNotNull(response.createdAt());
 
-    Mockito.verify(taskRepository).persistTask(taskEntity);
+    Mockito.verify(taskRepository, Mockito.only()).updateTask(taskEntity);
   }
 
   @ParameterizedTest(name = "username={0}, title={1}, description={2}")
   @CsvSource(value = {
-    "username,Test task,''",
-    "username,Test task,Some task description"
+    "username,Updated task,''",
+    "username,Updated task,Updated task description"
   })
   void shouldThrowExceptionWhenUserNotAuthorized(String username, String title, String description) {
     CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(username, title, description);
     Mockito.when(userRepository.findUserByUsername(username)).thenReturn(Optional.empty());
 
     UserUnauthorizedException ex = Assertions.assertThrows(
-      UserUnauthorizedException.class, () -> createCommand.execute(request)
+      UserUnauthorizedException.class, () -> updateCommand.execute(request)
     );
 
     Assertions.assertTrue(ex.getMessage().contains("not authorized"));
-    Mockito.verify(taskRepository, Mockito.never()).persistTask(Mockito.any(Task.class));
+    Mockito.verify(taskRepository, Mockito.never()).updateTask(Mockito.any(Task.class));
   }
 
   @ParameterizedTest(name = "username={0}, title={1}, description={2}")
   @CsvSource(value = {
-    "username,Test task,''",
-    "username,Test task,Some task description"
+    "username,Updated task,''",
+    "username,Updated task,Updated task description"
   })
-  void shouldThrowExceptionWhenUserRoleAllowedCreateTask(String username, String title, String description) {
+  void shouldThrowExceptionWhenUserRoleAllowedUpdateTask(String username, String title, String description) {
     userEntity.setRole(UserRole.UNKNOWN);
     CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(username, title, description);
     Mockito.when(userRepository.findUserByUsername(username)).thenReturn(Optional.of(userEntity));
 
-    TaskException ex = Assertions.assertThrows(TaskException.class, () -> createCommand.execute(request));
-    Assertions.assertTrue(ex.getMessage().contains("Cannot create task with user role UNKNOWN"));
+    TaskException ex = Assertions.assertThrows(TaskException.class, () -> updateCommand.execute(request));
+    Assertions.assertTrue(ex.getMessage().contains("Cannot update task with user role UNKNOWN"));
     Mockito.verify(taskRepository, Mockito.never()).persistTask(Mockito.any(Task.class));
   }
 
@@ -150,8 +150,8 @@ class CreateCommandTest {
     CreateUpdateTaskRequest validRequest1 = new CreateUpdateTaskRequest("username", "Some task", null);
     CreateUpdateTaskRequest validRequest2 = new CreateUpdateTaskRequest(
       "username",
-      "Some new task",
-      "Some text about task description"
+      "Updated task",
+      "Updated description"
     );
 
     return Stream.of(Arguments.of(validRequest1, validRequest2));
@@ -159,8 +159,8 @@ class CreateCommandTest {
 
   static Stream<Arguments> invalidRequests() {
     return Stream.of(
-      Arguments.of(new CreateUpdateTaskRequest(null, "Some new task", "Task description")),
-      Arguments.of(new CreateUpdateTaskRequest("user", null, "Task description"))
+      Arguments.of(new CreateUpdateTaskRequest(null, "Updated task", "Updated description")),
+      Arguments.of(new CreateUpdateTaskRequest("user", null, "Updated description"))
     );
   }
 }

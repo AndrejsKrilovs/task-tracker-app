@@ -1,5 +1,6 @@
 package krilovs.andrejs.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import krilovs.andrejs.app.entity.TaskStatus;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -26,6 +27,7 @@ public record TaskResponse(
     description = "Describe task actions",
     defaultValue = "Some task description"
   )
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   String description,
 
   @Schema(
@@ -41,12 +43,14 @@ public record TaskResponse(
       "COMPLETED"
     }
   )
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   TaskStatus status,
 
   @Schema(
     title = "Creation date",
     description = "Shows task creation date"
   )
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   LocalDateTime createdAt,
 
   @Schema(

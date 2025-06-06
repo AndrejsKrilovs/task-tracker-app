@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "task_table")
+@ToString(exclude = "user")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Task {
   @Id

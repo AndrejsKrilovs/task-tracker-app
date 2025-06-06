@@ -2,11 +2,9 @@ package krilovs.andrejs.app.service.task;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.entity.Task;
-import krilovs.andrejs.app.entity.TaskStatus;
 import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.entity.UserRole;
 import krilovs.andrejs.app.mapper.task.TaskMapper;
@@ -16,13 +14,12 @@ import krilovs.andrejs.app.service.ServiceCommand;
 import krilovs.andrejs.app.service.user.UserUnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
 @RequestScoped
-public class CreateCommand implements ServiceCommand<CreateUpdateTaskRequest, TaskResponse> {
+public class UpdateCommand implements ServiceCommand<CreateUpdateTaskRequest, TaskResponse> {
   @Inject
   TaskRepository taskRepository;
 
@@ -33,7 +30,6 @@ public class CreateCommand implements ServiceCommand<CreateUpdateTaskRequest, Ta
   TaskMapper taskMapper;
 
   @Override
-  @Transactional
   public TaskResponse execute(CreateUpdateTaskRequest input) {
     Optional<User> userFromDatabase = userRepository.findUserByUsername(input.getUsername());
     if (userFromDatabase.isEmpty()) {
@@ -42,29 +38,28 @@ public class CreateCommand implements ServiceCommand<CreateUpdateTaskRequest, Ta
     }
 
     UserRole role = Objects.requireNonNullElse(userFromDatabase.get().getRole(), UserRole.UNKNOWN);
-    if (validateIfUserCanCreateTask(input.getUsername(), role)) {
-      return persistAndRegisterTask(input);
+    if (validateIfUserCanUpdateTask(input.getUsername(), role)) {
+      return updateTask(input);
     }
 
-    log.error("Task not created. Cannot create task with user role '{}'", role);
+    log.error("Task not updated. Cannot update task with user role '{}'", role);
     String errorMessage = """
-      Task not created. Cannot create task with user role %s
-      Only BUSINESS_ANALYST, PRODUCT_OWNER or SCRUM_MASTER can create tasks
+      Task not updated. Cannot update task with user role %s
+      Only BUSINESS_ANALYST, PRODUCT_OWNER or SCRUM_MASTER can update tasks
       """.formatted(role);
     throw new TaskException(errorMessage);
   }
 
-  private TaskResponse persistAndRegisterTask(CreateUpdateTaskRequest input) {
+  private TaskResponse updateTask(CreateUpdateTaskRequest input) {
     Task taskEntity = taskMapper.toEntity(input);
-    taskEntity.setStatus(TaskStatus.READY_FOR_DEVELOPMENT);
-    taskEntity.setCreatedAt(LocalDateTime.now());
-    taskRepository.persistTask(taskEntity);
+    taskEntity.setId(input.getId());
+    taskRepository.updateTask(taskEntity);
 
     return taskMapper.toDto(taskEntity);
   }
 
-  private boolean validateIfUserCanCreateTask(String username, UserRole userRole) {
-    log.info("Validating, if user '{}' with role '{}' is able to create tasks", username, userRole);
+  private boolean validateIfUserCanUpdateTask(String username, UserRole userRole) {
+    log.info("Validating, if user '{}' with role '{}' is able to update tasks", username, userRole);
     return userRole == UserRole.BUSINESS_ANALYST ||
       userRole == UserRole.PRODUCT_OWNER ||
       userRole == UserRole.SCRUM_MASTER;

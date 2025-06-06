@@ -1,6 +1,6 @@
 package krilovs.andrejs.app.mapper.task;
 
-import krilovs.andrejs.app.dto.CreateTaskRequest;
+import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.entity.Task;
 import org.mapstruct.Mapper;
@@ -15,5 +15,5 @@ public interface TaskMapper {
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "user.username", source = "username")
-  Task toEntity(CreateTaskRequest request);
+  Task toEntity(CreateUpdateTaskRequest request);
 }
