@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
 
-// В простом TypeScript проекте без фреймворков — никаких плагинов не нужно
 export default defineConfig({
-  root: '.', // если index.html находится в корне проекта (по умолчанию)
+  plugins: [vue()],
+  root: '.'
 })
