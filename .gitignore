@@ -42,3 +42,7 @@ nb-configuration.xml
 
 # Created docker files
 /docker-volumes
+
+# Frontend
+/src/main/webui/node_modules
+.quinoa
