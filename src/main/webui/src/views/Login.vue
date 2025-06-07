@@ -29,14 +29,17 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const form = reactive({
   username: '',
   password: ''
 })
 
 function handleLogin() {
-  alert(`Logging in as: ${form.username}`)
+  // TODO: Подключить API
+  router.push('/tasks')
 }
 </script>
 
