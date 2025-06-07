@@ -44,5 +44,6 @@ nb-configuration.xml
 /docker-volumes
 
 # Frontend
+/src/main/webui/package-lock.json
 /src/main/webui/node_modules
 .quinoa
