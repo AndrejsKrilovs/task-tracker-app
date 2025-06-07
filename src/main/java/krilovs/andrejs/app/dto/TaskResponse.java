@@ -20,6 +20,7 @@ public record TaskResponse(
     defaultValue = "Some new task",
     description = "Represents defined task title"
   )
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   String title,
 
   @Schema(

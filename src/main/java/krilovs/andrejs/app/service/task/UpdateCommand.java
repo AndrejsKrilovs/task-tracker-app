@@ -2,6 +2,7 @@ package krilovs.andrejs.app.service.task;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.entity.Task;
@@ -30,6 +31,7 @@ public class UpdateCommand implements ServiceCommand<CreateUpdateTaskRequest, Ta
   TaskMapper taskMapper;
 
   @Override
+  @Transactional
   public TaskResponse execute(CreateUpdateTaskRequest input) {
     Optional<User> userFromDatabase = userRepository.findUserByUsername(input.getUsername());
     if (userFromDatabase.isEmpty()) {

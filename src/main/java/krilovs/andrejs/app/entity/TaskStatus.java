@@ -6,5 +6,7 @@ public enum TaskStatus {
   CODE_REVIEW,
   READY_FOR_TEST,
   IN_TESTING,
-  COMPLETED
+  REOPEN,
+  COMPLETED,
+  UNKNOWN
 }

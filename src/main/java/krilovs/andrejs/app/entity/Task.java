@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(name = "task_table")
-@ToString(exclude = "user")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Task {
   @Id
