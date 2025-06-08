@@ -1,5 +1,6 @@
 package krilovs.andrejs.app.controller;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -32,6 +33,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.util.Map;
 
 @Slf4j
+@PermitAll
 @Path("/api/v1/task-tracker/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
