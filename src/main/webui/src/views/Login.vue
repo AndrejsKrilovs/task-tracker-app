@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import apiClient from '@/api/axios'
 
 const router = useRouter()
 const form = reactive({
@@ -37,9 +38,17 @@ const form = reactive({
   password: ''
 })
 
-function handleLogin() {
-  // TODO: Подключить API
-  router.push('/tasks')
+async function handleLogin() {
+  const response = await apiClient.post('/users/login', {
+    username: form.username,
+    password: form.password
+  })
+
+  if (response.status === 200) {
+    localStorage.setItem('isAuthenticated', 'true')
+    localStorage.setItem('loginResponse', JSON.stringify(response.data))
+    router.push('/tasks')
+  }
 }
 </script>
 

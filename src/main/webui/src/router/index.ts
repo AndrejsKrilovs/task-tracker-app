@@ -1,41 +1,63 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Register from '../views/Register.vue'
-import Login from '../views/Login.vue'
-import TaskTracker from '../views/TaskTracker.vue'
+import Register from '@/views/Register'
+import Login from '@/views/Login'
+import TaskTracker from '@/views/TaskTracker'
 
 const routes = [
   {
-      path: '/',
-      redirect: '/login'
+    path: '/',
+    redirect: '/login'
   },
   {
     path: '/register',
     name: 'Register',
-    component: Register
+    component: Register,
+    meta: { requiresGuest: true }
   },
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: { requiresGuest: true }
   },
   {
     path: '/tasks',
     name: 'Tasks',
-    component: TaskTracker
+    component: TaskTracker,
+    meta: { requiresAuth: true }
   },
   {
     path: '/logout',
     name: 'Logout',
     beforeEnter: (to, from, next) => {
-      // TODO: сброс токенов, сессий и т.п.
+      localStorage.removeItem('isAuthenticated')
+      localStorage.removeItem('loginResponse')
       next('/login')
     }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login'
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory('/quinoa'), // если используешь Quinoa + Vite
+  history: createWebHistory('/quinoa'),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true'
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next('/login')
+  }
+
+  if (to.meta.requiresGuest && isAuthenticated) {
+    return next('/tasks')
+  }
+
+  next()
 })
 
 export default router
