@@ -3,17 +3,23 @@ package krilovs.andrejs.app.controller;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.UserLoginRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.user.LoginCommand;
+import krilovs.andrejs.app.service.user.LogoutCommand;
 import krilovs.andrejs.app.service.user.RegistrationCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -69,5 +75,22 @@ public class UserFacade {
 
     Map<String, String> entityToResponse = Map.of("user", request.username(), "token", result);
     return Response.status(Response.Status.OK).entity(entityToResponse).build();
+  }
+
+  @GET
+  @Path("/logout")
+  @Operation(summary = "User logout", description = "Logging out from system")
+  @APIResponses(value = {
+    @APIResponse(responseCode = "200", description = "User logged out from system"),
+    @APIResponse(responseCode = "409", description = "User is not active",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+  })
+  public Response logout(@Context SecurityContext securityContext) {
+    String username = securityContext.getUserPrincipal().getName();
+    log.info("Requested for logout. User: '{}'", username);
+
+    executor.run(LogoutCommand.class, username);
+    log.info("Successfully logged out user '{}' with status '{}'", username, Response.Status.OK);
+    return Response.status(Response.Status.OK).build();
   }
 }

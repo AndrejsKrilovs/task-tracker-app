@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import apiClient from '@/api/axios'
 
 const router = useRouter()
 const language = ref('en')
@@ -40,7 +41,8 @@ onMounted(() => {
   router.replace('/tasks')
 })
 
-function logout() {
+async function logout() {
+  await apiClient.get('/users/logout')
   router.push('/logout')
 }
 </script>

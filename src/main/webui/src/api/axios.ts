@@ -13,7 +13,6 @@ apiClient.interceptors.request.use(config => {
   if (item) {
     const token = JSON.parse(item).token
     config.headers.Authorization = `Bearer ${token}`
-    console.log(config.headers.Authorization)
   }
 
   return config

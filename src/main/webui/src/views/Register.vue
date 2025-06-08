@@ -67,13 +67,6 @@ const form = reactive({
 })
 
 async function onSubmit() {
-  const obj = {
-      username: form.username,
-      password: form.password,
-      email: form.email,
-      role: form.role
-    }
-
   const response = await apiClient.post('/users/register', {
     username: form.username,
     password: form.password,
