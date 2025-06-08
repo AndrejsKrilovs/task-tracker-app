@@ -21,21 +21,36 @@ const routes = [
   {
     path: '/tasks',
     name: 'Tasks',
-    component: TaskTracker
+    component: TaskTracker,
+    meta: { requiresAuth: true }
   },
   {
     path: '/logout',
     name: 'Logout',
     beforeEnter: (to, from, next) => {
-      // TODO: сброс токенов, сессий и т.п.
+      localStorage.clear()
       next('/login')
     }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login'
   }
 ]
 
 const router = createRouter({
   history: createWebHistory('/quinoa'), // если используешь Quinoa + Vite
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem('loginResponse')
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else {
+    next()
+  }
 })
 
 export default router

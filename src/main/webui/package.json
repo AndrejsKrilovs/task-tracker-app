@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --base=/quinoa",
-    "build": "vite build --base=/quinoa",
-    "preview": "vite preview --base=/quinoa"
+    "dev": "vite",
+    "build": "vite",
+    "preview": "vite"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
