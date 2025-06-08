@@ -1,7 +1,7 @@
 <template>
   <div class="task-tracker-container">
     <header class="header">
-      <div class="welcome-text">Welcome, User!</div>
+      <div class="welcome-text">Welcome, {{ user }}!</div>
       <div class="header-actions">
         <select v-model="language" class="language-select">
           <option value="en">EN</option>
@@ -20,11 +20,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const language = ref('en')
+const user = ref<string | null>(null)
+
+onMounted(() => {
+  const item = localStorage.getItem('loginResponse')
+
+  if (!item) {
+    router.replace('/login')
+    return
+  }
+
+  const parsed = JSON.parse(item)
+  user.value = parsed.user
+  router.replace('/tasks')
+})
 
 function logout() {
   router.push('/logout')
