@@ -10,6 +10,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "baseUrl": ".",
     "types": [
       "vite/client"
     ]
@@ -17,7 +18,6 @@
   "include": [
     "src"
   ],
-  "baseUrl": ".",
   "paths": {
     "@/*": [
       "src/*"
