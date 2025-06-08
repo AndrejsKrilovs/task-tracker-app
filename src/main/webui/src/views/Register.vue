@@ -7,29 +7,84 @@
         <input id="username" v-model="form.username" type="text" required />
       </div>
       <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" v-model="form.email" type="email" required />
-      </div>
-      <div class="form-group">
         <label for="password">Password</label>
         <input id="password" v-model="form.password" type="password" required />
       </div>
-      <button class="submit-btn" type="submit">Register</button>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" v-model="form.email" type="email" />
+      </div>
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select v-model="form.role" class="role-select">
+          <option :value="null">Default role</option>
+          <option
+            v-for="(label, value) in roleOptions"
+            :key="value"
+            :value="value"
+          >
+            {{ label }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button class="submit-btn" type="submit">Register</button>
+      </div>
+      <RouterLink
+        to="/login"
+        class="submit-btn mt-2"
+        custom
+        v-slot="{ navigate }"
+      >
+        <button @click="navigate" class="submit-btn w-full">
+          Login
+        </button>
+      </RouterLink>
+
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import apiClient from '@/api/axios'
 
+const roleOptions: Record<string, string> = {
+  PRODUCT_OWNER: 'Product Owner',
+  BUSINESS_ANALYST: 'Business Analyst',
+  SCRUM_MASTER: 'Scrum Master',
+  SOFTWARE_DEVELOPER: 'Software Developer',
+  QA_SPECIALIST: 'QA Specialist'
+}
+
+const router = useRouter()
 const form = reactive({
-  username: '',
-  email: '',
-  password: ''
+  username: null,
+  email: null,
+  password: null,
+  role: null
 })
 
-function onSubmit() {
-  alert(`Registered: ${form.username}, ${form.email}`)
+async function onSubmit() {
+  const obj = {
+      username: form.username,
+      password: form.password,
+      email: form.email,
+      role: form.role
+    }
+
+  const response = await apiClient.post('/users/register', {
+    username: form.username,
+    password: form.password,
+    email: form.email,
+    role: form.role
+  })
+
+  if (response.status === 201) {
+    alert(`User '${response.data.username}' successfully registered`)
+    router.push('/login')
+  }
 }
 </script>
 
@@ -101,5 +156,13 @@ function onSubmit() {
 
 .submit-btn:hover {
   background-color: #3182ce;
+}
+
+.role-select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e0;
+  background: #f7fafc;
+  font-size: 1rem;
 }
 </style>

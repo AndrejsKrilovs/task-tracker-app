@@ -34,8 +34,8 @@ import apiClient from '@/api/axios'
 
 const router = useRouter()
 const form = reactive({
-  username: '',
-  password: ''
+  username: null,
+  password: null
 })
 
 async function handleLogin() {
