@@ -42,8 +42,10 @@ onMounted(() => {
 })
 
 async function logout() {
-  await apiClient.get('/users/logout')
-  router.push('/logout')
+  const response = await apiClient.get('/users/logout')
+  if (response.status === 200) {
+    router.push('/logout')
+  }
 }
 </script>
 
