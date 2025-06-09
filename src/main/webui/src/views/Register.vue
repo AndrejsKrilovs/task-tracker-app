@@ -2,17 +2,25 @@
   <div class="register-container">
     <form class="register-form" @submit.prevent="onSubmit">
       <h2 class="form-title">Create Account</h2>
+
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
       <div class="form-group">
         <label for="username">Username</label>
-        <input id="username" v-model="form.username" type="text" required />
+        <input id="username" v-model="form.username" type="text" />
+        <p v-if="fieldErrors.username" class="field-error">{{ fieldErrors.username }}</p>
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" v-model="form.password" type="password" required />
+        <input id="password" v-model="form.password" type="password" />
+        <p v-if="fieldErrors.password" class="field-error">{{ fieldErrors.password }}</p>
       </div>
       <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" v-model="form.email" type="email" />
+        <input id="email" v-model="form.email" />
+        <p v-if="fieldErrors.email" class="field-error">{{ fieldErrors.email }}</p>
       </div>
       <div class="form-group">
         <label for="role">Role</label>
@@ -58,6 +66,8 @@ const roleOptions: Record<string, string> = {
   QA_SPECIALIST: 'QA Specialist'
 }
 
+const errorMessage = ref<string | null>(null)
+const fieldErrors = reactive<{ [key: string]: string }>({})
 const router = useRouter()
 const form = reactive({
   username: null,
@@ -67,16 +77,39 @@ const form = reactive({
 })
 
 async function onSubmit() {
-  const response = await apiClient.post('/users/register', {
-    username: form.username,
-    password: form.password,
-    email: form.email,
-    role: form.role
-  })
+  errorMessage.value = null
+  Object.keys(fieldErrors).forEach(key => delete fieldErrors[key])
 
-  if (response.status === 201) {
-    alert(`User '${response.data.username}' successfully registered`)
-    router.push('/login')
+  try {
+    const response = await apiClient.post('/users/register', {
+      username: form.username,
+      password: form.password,
+      email: form.email,
+      role: form.role
+    })
+
+    if (response.status === 201) {
+      alert(`User '${response.data.username}' successfully registered`)
+      router.push('/login')
+    }
+  }
+  catch (exception: any) {
+    if (exception.response.status === 409) {
+      errorMessage.value = exception.response.data.message
+    }
+
+    if (exception.response.status === 400) {
+      console.log(exception.response.data)
+      const errorEntries = Object.entries(exception.response.data)
+        .filter(([key, value]) => key.includes('message'))
+        .flatMap(([key, value]) => Object.entries(value))
+
+      errorEntries.forEach(([key, value]) => {
+        if (key.includes('username')) fieldErrors.username = value as string
+        if (key.includes('password')) fieldErrors.password = value as string
+        if (key.includes('email')) fieldErrors.email = value as string
+      })
+    }
   }
 }
 </script>
@@ -157,5 +190,22 @@ async function onSubmit() {
   border: 1px solid #cbd5e0;
   background: #f7fafc;
   font-size: 1rem;
+}
+
+.error-message {
+  background-color: #fed7d7;
+  color: #c53030;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 0 0 1px #feb2b2;
+}
+
+.field-error {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 </style>

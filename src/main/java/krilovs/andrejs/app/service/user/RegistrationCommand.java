@@ -34,7 +34,7 @@ public class RegistrationCommand implements ServiceCommand<UserRegistrationReque
     }
 
     log.error("User not created. User with username '{}' already exists", input.username());
-    throw new UserException("User not created. User with username '%s' already exists".formatted(input.username()));
+    throw new UserException("User with username '%s' already exists".formatted(input.username()));
   }
 
   private UserResponse persistAndRegisterUser(UserRegistrationRequest input) {

@@ -2,13 +2,20 @@
   <div class="login-container">
     <form class="login-form" @submit.prevent="handleLogin">
       <h2 class="form-title">Welcome form</h2>
+
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
       <div class="form-group">
         <label for="username">Username</label>
-        <input id="username" v-model="form.username" type="text" required />
+        <input id="username" v-model="form.username" type="text" />
+        <p v-if="fieldErrors.username" class="field-error">{{ fieldErrors.username }}</p>
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" v-model="form.password" type="password" required />
+        <input id="password" v-model="form.password" type="password" />
+        <p v-if="fieldErrors.password" class="field-error">{{ fieldErrors.password }}</p>
       </div>
       <div class="form-group">
         <button class="submit-btn" type="submit">Login</button>
@@ -28,10 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 
+const errorMessage = ref<string | null>(null)
+const fieldErrors = reactive<{ [key: string]: string }>({})
 const router = useRouter()
 const form = reactive({
   username: null,
@@ -39,15 +48,36 @@ const form = reactive({
 })
 
 async function handleLogin() {
-  const response = await apiClient.post('/users/login', {
-    username: form.username,
-    password: form.password
-  })
+  errorMessage.value = null
+  Object.keys(fieldErrors).forEach(key => delete fieldErrors[key])
 
-  if (response.status === 200) {
-    localStorage.setItem('isAuthenticated', 'true')
-    localStorage.setItem('loginResponse', JSON.stringify(response.data))
-    router.push('/tasks')
+  try {
+    const response = await apiClient.post('/users/login', {
+      username: form.username,
+      password: form.password
+    })
+
+    if (response.status === 200) {
+      localStorage.setItem('isAuthenticated', 'true')
+      localStorage.setItem('loginResponse', JSON.stringify(response.data))
+      router.push('/tasks')
+    }
+  }
+  catch (exception: any) {
+    if (exception.response.status === 401) {
+      errorMessage.value = exception.response.data.message
+    }
+
+    if (exception.response.status === 400) {
+      const errorEntries = Object.entries(exception.response.data)
+        .filter(([key, value]) => key.includes('message'))
+        .flatMap(([key, value]) => Object.entries(value))
+
+      errorEntries.forEach(([key, value]) => {
+        if (key.includes('username')) fieldErrors.username = value as string
+        if (key.includes('password')) fieldErrors.password = value as string
+      })
+    }
   }
 }
 </script>
@@ -120,5 +150,22 @@ async function handleLogin() {
 
 .submit-btn:hover {
   background-color: #3182ce;
+}
+
+.error-message {
+  background-color: #fed7d7;
+  color: #c53030;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 0 0 1px #feb2b2;
+}
+
+.field-error {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 </style>

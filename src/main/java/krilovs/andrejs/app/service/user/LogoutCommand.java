@@ -16,9 +16,7 @@ public class LogoutCommand implements ServiceCommand<String, Void> {
   @Override
   @Transactional
   public Void execute(String user) {
-    int updatedRows = userRepository.updateUserLastVisitForUser(user);
-    if (updatedRows == 1) {
-      userRepository.updateUserLastVisitForUser(user);
+    if (userRepository.updateUserLastVisitForUser(user) == 1) {
       return null;
     }
 
