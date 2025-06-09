@@ -151,21 +151,4 @@ async function handleLogin() {
 .submit-btn:hover {
   background-color: #3182ce;
 }
-
-.error-message {
-  background-color: #fed7d7;
-  color: #c53030;
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-weight: 500;
-  text-align: center;
-  box-shadow: 0 0 0 1px #feb2b2;
-}
-
-.field-error {
-  color: #e53e3e;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
 </style>

@@ -5,6 +5,7 @@
       <div class="form-group">
         <label for="title">Title</label>
         <input id="title" v-model="form.title" type="text" />
+        <p v-if="fieldError.title" class="field-error">{{ fieldError.title }}</p>
       </div>
 
       <div class="form-group">
@@ -21,9 +22,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, defineEmits } from 'vue'
 import apiClient from '@/api/axios'
 
+const emit = defineEmits(['cancel'])
+const fieldError = reactive<{ [key: string]: string }>({})
 const form = reactive({
   id: null,
   title: null,
@@ -31,14 +34,30 @@ const form = reactive({
 })
 
 async function submitTask() {
-  const response = await apiClient.post('/tasks/create', {
-    id: form.id,
-    title: form.title,
-    description: form.description
-  })
+  try {
+    const response = await apiClient.post('/tasks/create', {
+      id: form.id,
+      title: form.title,
+      description: form.description
+    })
 
-  if (response.status === 201) {
-    console.log(response.data)
+    if (response.status === 201) {
+      alert(`Task '${response.data.title}' created`)
+      form.title = null
+      form.description = null
+      emit('cancel')
+    }
+  }
+  catch(exception: any) {
+    if (exception.response.status === 400) {
+      const errorEntry = Object.entries(exception.response.data)
+        .filter(([key, value]) => key.includes('message'))
+        .flatMap(([key, value]) => Object.entries(value))
+        .find(([key, value]) => key.includes('title'))
+
+      const [key, value] = errorEntry
+      fieldError.title = value as string
+    }
   }
 }
 </script>
