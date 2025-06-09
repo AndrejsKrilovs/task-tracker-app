@@ -8,7 +8,7 @@
           <option value="ru">RU</option>
         </select>
 
-        <button v-if="!showCreateForm" class="main-btn" @click="showCreateForm = true">
+        <button v-if="canCreateTask && !showCreateForm" class="main-btn" @click="showCreateForm = true">
           Create New Task
         </button>
         <button class="main-btn" @click="logout">Logout</button>
@@ -30,22 +30,25 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import CreateTask from './CreateTask'
+import { hasTaskCreateAccess, extractUsername } from '@/utils/jwt'
 
 const router = useRouter()
 const language = ref('en')
 const user = ref<string | null>(null)
 const showCreateForm = ref(false)
+const canCreateTask = ref(false)
 
 onMounted(() => {
   const item = localStorage.getItem('loginResponse')
+  const token = JSON.parse(item).token
 
-  if (!item) {
+  if (!item && !token) {
     router.replace('/login')
     return
   }
 
-  const parsed = JSON.parse(item)
-  user.value = parsed.user
+  user.value = extractUsername(token)
+  canCreateTask.value = hasTaskCreateAccess(token)
   router.replace('/tasks')
 })
 
