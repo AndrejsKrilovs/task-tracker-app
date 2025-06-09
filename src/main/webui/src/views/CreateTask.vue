@@ -4,12 +4,12 @@
     <form @submit.prevent="submitTask">
       <div class="form-group">
         <label for="title">Title</label>
-        <input id="title" v-model="task.title" type="text" />
+        <input id="title" v-model="form.title" type="text" />
       </div>
 
       <div class="form-group">
         <label for="description">Description</label>
-        <textarea id="description" v-model="task.description" rows="5"></textarea>
+        <textarea id="description" v-model="form.description" rows="5"></textarea>
       </div>
 
       <div class="btn-group">
@@ -24,13 +24,22 @@
 import { reactive } from 'vue'
 import apiClient from '@/api/axios'
 
-const task = reactive({
-  title: '',
-  description: ''
+const form = reactive({
+  id: null,
+  title: null,
+  description: null
 })
 
 async function submitTask() {
-  console.log('Task to submit')
+  const response = await apiClient.post('/tasks/create', {
+    id: form.id,
+    title: form.title,
+    description: form.description
+  })
+
+  if (response.status === 201) {
+    console.log(response.data)
+  }
 }
 </script>
 

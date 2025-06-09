@@ -8,12 +8,9 @@ import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.entity.Task;
 import krilovs.andrejs.app.entity.TaskStatus;
-import krilovs.andrejs.app.entity.User;
-import krilovs.andrejs.app.entity.UserRole;
 import krilovs.andrejs.app.mapper.task.TaskMapper;
 import krilovs.andrejs.app.repository.TaskRepository;
-import krilovs.andrejs.app.repository.UserRepository;
-import krilovs.andrejs.app.service.user.UserUnauthorizedException;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +24,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -40,12 +36,11 @@ class CreateCommandTest {
   TaskRepository taskRepository;
 
   @Mock
-  UserRepository userRepository;
+  JsonWebToken jsonWebToken;
 
   @Mock
   TaskMapper taskMapper;
 
-  User userEntity;
   Task taskEntity;
   Validator validator;
 
@@ -55,27 +50,20 @@ class CreateCommandTest {
       validator = validatorFactory.getValidator();
     }
 
-    userEntity = new User();
-    userEntity.setUsername("username");
-    userEntity.setRole(UserRole.PRODUCT_OWNER);
-
     taskEntity = new Task();
-    taskEntity.setId(1L);
     taskEntity.setTitle("Test task");
-    taskEntity.setUser(userEntity);
-    taskEntity.setCreatedAt(LocalDateTime.now());
-    taskEntity.setDescription("Some task description");
   }
 
-  @ParameterizedTest(name = "username={0}, title={1}, description={2}")
+  @ParameterizedTest(name = "title={0}, description={1}")
   @CsvSource(value = {
-    "username,Test task,''",
-    "username,Test task,Some task description"
+    "Test task,''",
+    "Test task,Some task description"
   })
-  void shouldRegisterNewTaskSuccessfully(String username, String title, String description) {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(username, title, description);
+  void shouldRegisterNewTaskSuccessfully(String title, String description) {
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(title, description);
+    Mockito.when(jsonWebToken.getName()).thenReturn("username");
+    Mockito.when(jsonWebToken.getGroups()).thenReturn(Set.of("PRODUCT_OWNER"));
 
-    Mockito.when(userRepository.findUserByUsername(username)).thenReturn(Optional.of(userEntity));
     Mockito.when(taskMapper.toEntity(request)).thenReturn(taskEntity);
     Mockito.when(taskMapper.toDto(Mockito.any())).thenAnswer(invocation -> {
       Task task = invocation.getArgument(0);
@@ -100,32 +88,15 @@ class CreateCommandTest {
     Mockito.verify(taskRepository).persistTask(taskEntity);
   }
 
-  @ParameterizedTest(name = "username={0}, title={1}, description={2}")
+  @ParameterizedTest(name = "title={0}, description={1}")
   @CsvSource(value = {
-    "username,Test task,''",
-    "username,Test task,Some task description"
+    "Test task,''",
+    "Test task,Some task description"
   })
-  void shouldThrowExceptionWhenUserNotAuthorized(String username, String title, String description) {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(username, title, description);
-    Mockito.when(userRepository.findUserByUsername(username)).thenReturn(Optional.empty());
-
-    UserUnauthorizedException ex = Assertions.assertThrows(
-      UserUnauthorizedException.class, () -> createCommand.execute(request)
-    );
-
-    Assertions.assertTrue(ex.getMessage().contains("not authorized"));
-    Mockito.verify(taskRepository, Mockito.never()).persistTask(Mockito.any(Task.class));
-  }
-
-  @ParameterizedTest(name = "username={0}, title={1}, description={2}")
-  @CsvSource(value = {
-    "username,Test task,''",
-    "username,Test task,Some task description"
-  })
-  void shouldThrowExceptionWhenUserRoleAllowedCreateTask(String username, String title, String description) {
-    userEntity.setRole(UserRole.UNKNOWN);
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(username, title, description);
-    Mockito.when(userRepository.findUserByUsername(username)).thenReturn(Optional.of(userEntity));
+  void shouldThrowExceptionWhenUserRoleAllowedCreateTask(String title, String description) {
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(title, description);
+    Mockito.when(jsonWebToken.getName()).thenReturn("");
+    Mockito.when(jsonWebToken.getGroups()).thenReturn(Set.of("UNKNOWN"));
 
     TaskException ex = Assertions.assertThrows(TaskException.class, () -> createCommand.execute(request));
     Assertions.assertTrue(ex.getMessage().contains("Cannot create task with user role UNKNOWN"));
@@ -147,20 +118,13 @@ class CreateCommandTest {
   }
 
   static Stream<Arguments> validRequests() {
-    CreateUpdateTaskRequest validRequest1 = new CreateUpdateTaskRequest("username", "Some task", null);
-    CreateUpdateTaskRequest validRequest2 = new CreateUpdateTaskRequest(
-      "username",
-      "Some new task",
-      "Some text about task description"
-    );
+    CreateUpdateTaskRequest validRequest1 = new CreateUpdateTaskRequest("Test task", null);
+    CreateUpdateTaskRequest validRequest2 = new CreateUpdateTaskRequest("Test task", "Some text");
 
     return Stream.of(Arguments.of(validRequest1, validRequest2));
   }
 
   static Stream<Arguments> invalidRequests() {
-    return Stream.of(
-      Arguments.of(new CreateUpdateTaskRequest(null, "Some new task", "Task description")),
-      Arguments.of(new CreateUpdateTaskRequest("user", null, "Task description"))
-    );
+    return Stream.of(Arguments.of(new CreateUpdateTaskRequest(null, "Task description")));
   }
 }

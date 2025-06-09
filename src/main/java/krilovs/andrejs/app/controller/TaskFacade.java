@@ -45,13 +45,12 @@ public class TaskFacade {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskResponse.class))),
     @APIResponse(responseCode = "400", description = "Incorrect task credentials",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-    @APIResponse(responseCode = "401", description = "Not authorized user",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
     @APIResponse(responseCode = "409", description = "User role not allowed to create tasks",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public Response createTask(@Valid CreateUpdateTaskRequest request) {
     log.info("Requested to create new task '{}'", request);
+
     TaskResponse result = executor.run(CreateCommand.class, request);
     log.info("Successfully created task '{}' with status '{}'", request, Response.Status.CREATED);
     return Response.status(Response.Status.CREATED).entity(result).build();
@@ -74,7 +73,7 @@ public class TaskFacade {
                              @QueryParam("username") String username,
                              @Valid CreateUpdateTaskRequest request) {
     request.setId(taskId);
-    request.setUsername(username);
+//    request.setUsername(username);
     log.info("Requested to update task '{}'", request);
     TaskResponse result = executor.run(UpdateCommand.class, request);
     log.info("Successfully update task '{}' with status '{}'", request, Response.Status.ACCEPTED);
