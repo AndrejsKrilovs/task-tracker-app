@@ -7,11 +7,17 @@
           <option value="en">EN</option>
           <option value="ru">RU</option>
         </select>
-        <button class="logout-btn" @click="logout">Logout</button>
+
+        <button v-if="!showCreateForm" class="main-btn" @click="showCreateForm = true">
+          Create New Task
+        </button>
+        <button class="main-btn" @click="logout">Logout</button>
       </div>
     </header>
 
     <main class="main-content">
+      <CreateTask v-if="showCreateForm" @cancel="showCreateForm = false" />
+
       <h1 class="main-title">Your Tasks</h1>
       <p class="subtitle">This is where your task list will be shown.</p>
       <!-- TODO: Replace with real task list -->
@@ -23,10 +29,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
+import CreateTask from './CreateTask'
 
 const router = useRouter()
 const language = ref('en')
 const user = ref<string | null>(null)
+const showCreateForm = ref(false)
 
 onMounted(() => {
   const item = localStorage.getItem('loginResponse')
@@ -88,21 +96,6 @@ async function logout() {
   border: 1px solid #cbd5e0;
   background: #f7fafc;
   font-size: 1rem;
-}
-
-.logout-btn {
-  background-color: #e53e3e;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.logout-btn:hover {
-  background-color: #c53030;
 }
 
 .main-content {
