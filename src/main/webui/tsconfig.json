@@ -13,14 +13,14 @@
     "baseUrl": ".",
     "types": [
       "vite/client"
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
   },
   "include": [
     "src"
-  ],
-  "paths": {
-    "@/*": [
-      "src/*"
-    ]
-  }
+  ]
 }

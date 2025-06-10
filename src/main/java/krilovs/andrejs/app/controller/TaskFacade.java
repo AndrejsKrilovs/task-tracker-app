@@ -1,5 +1,6 @@
 package krilovs.andrejs.app.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -9,8 +10,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import krilovs.andrejs.app.dto.ChangeTaskStatusRequest;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.ExceptionResponse;
@@ -18,7 +21,6 @@ import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.task.ChangeStatusCommand;
 import krilovs.andrejs.app.service.task.CreateCommand;
-import krilovs.andrejs.app.service.task.UpdateCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -39,18 +41,18 @@ public class TaskFacade {
 
   @POST
   @Path("/create")
+  @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER"})
   @Operation(summary = "Create new task", description = "Creates new task with provided credentials")
   @APIResponses(value = {
     @APIResponse(responseCode = "201", description = "Task successfully created",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskResponse.class))),
     @APIResponse(responseCode = "400", description = "Incorrect task credentials",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-    @APIResponse(responseCode = "401", description = "Not authorized user",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-    @APIResponse(responseCode = "409", description = "User role not allowed to create tasks",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to create task")
   })
-  public Response createTask(@Valid CreateUpdateTaskRequest request) {
+  public Response createTask(@Context SecurityContext securityContext,
+                             @Valid CreateUpdateTaskRequest request) {
+    request.setUser(securityContext.getUserPrincipal().getName());
     log.info("Requested to create new task '{}'", request);
     TaskResponse result = executor.run(CreateCommand.class, request);
     log.info("Successfully created task '{}' with status '{}'", request, Response.Status.CREATED);
@@ -73,12 +75,13 @@ public class TaskFacade {
   public Response updateTask(@PathParam("taskId") Long taskId,
                              @QueryParam("username") String username,
                              @Valid CreateUpdateTaskRequest request) {
-    request.setId(taskId);
-    request.setUsername(username);
-    log.info("Requested to update task '{}'", request);
-    TaskResponse result = executor.run(UpdateCommand.class, request);
-    log.info("Successfully update task '{}' with status '{}'", request, Response.Status.ACCEPTED);
-    return Response.status(Response.Status.ACCEPTED).entity(result).build();
+//    request.setId(taskId);
+//    request.setUsername(username);
+//    log.info("Requested to update task '{}'", request);
+//    TaskResponse result = executor.run(UpdateCommand.class, request);
+//    log.info("Successfully update task '{}' with status '{}'", request, Response.Status.ACCEPTED);
+//    return Response.status(Response.Status.ACCEPTED).entity(result).build();
+    return Response.status(Response.Status.ACCEPTED).build();
   }
 
   @PUT

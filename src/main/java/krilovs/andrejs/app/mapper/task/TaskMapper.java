@@ -12,10 +12,9 @@ public interface TaskMapper {
   @Mapping(target = "user", source = "user.username")
   TaskResponse toDto(Task task);
 
-  @Mapping(target = "id", ignore = true)
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "user.username", source = "username")
+  @Mapping(target = "user.username", source = "user")
   Task toEntity(CreateUpdateTaskRequest request);
 
   @Mapping(target = "title", ignore = true)

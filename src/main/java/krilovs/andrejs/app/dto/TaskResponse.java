@@ -6,26 +6,26 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Task request or response. Can be shown to user, also can be requested from same user")
+@Schema(description = "Represents task that can be created, updated or fetched by user")
 public record TaskResponse(
+
   @Schema(
     title = "Identifier",
     defaultValue = "0",
-    description = "Task identifier"
+    description = "Unique identifier of the task"
   )
   Long id,
 
   @Schema(
     title = "Title",
     defaultValue = "Some new task",
-    description = "Represents defined task title"
+    description = "Short, clear task name"
   )
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   String title,
 
   @Schema(
     title = "Description",
-    description = "Describe task actions",
+    description = "Detailed task explanation",
     defaultValue = "Some task description"
   )
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,7 +33,7 @@ public record TaskResponse(
 
   @Schema(
     title = "Status",
-    description = "Shows status for current task",
+    description = "Current task status",
     defaultValue = "READY_FOR_DEVELOPMENT",
     enumeration = {
       "READY_FOR_DEVELOPMENT",
@@ -41,6 +41,7 @@ public record TaskResponse(
       "CODE_REVIEW",
       "READY_FOR_TEST",
       "IN_TESTING",
+      "REOPEN",
       "COMPLETED"
     }
   )
@@ -49,16 +50,16 @@ public record TaskResponse(
 
   @Schema(
     title = "Creation date",
-    description = "Shows task creation date"
+    description = "Timestamp of task creation"
   )
   @JsonInclude(JsonInclude.Include.NON_NULL)
   LocalDateTime createdAt,
 
   @Schema(
-    title = "Assigned person",
-    description = "User whom assigned task at this moment",
-    defaultValue = "Some task description"
+    title = "Last modified by",
+    description = "Username who modified the task",
+    defaultValue = "john.doe"
   )
   String user
-) {
-}
+
+) {}

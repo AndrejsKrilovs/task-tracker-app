@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -12,24 +14,14 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Schema(description = "Request to create or update task")
 public class CreateUpdateTaskRequest {
+
+  @Setter
   @Schema(
     title = "Identifier",
     defaultValue = "0",
-    description = "Task identifier. This parameter passing from request path"
+    description = "Task identifier. This parameter is passed from request path"
   )
   Long id;
-
-  @NotNull(message = "Username is required")
-  @NotBlank(message = "Username is required")
-  @Schema(
-    minLength = 4,
-    maxLength = 30,
-    required = true,
-    title = "Username",
-    defaultValue = "username",
-    description = "User who creates or updates this task. This parameter passing from query path"
-  )
-  String username;
 
   @NotNull(message = "Title is required")
   @NotBlank(message = "Title is required")
@@ -51,15 +43,9 @@ public class CreateUpdateTaskRequest {
   )
   String description;
 
-  public CreateUpdateTaskRequest(@NotNull(message = "Username is required")
-                                 @NotBlank(message = "Username is required")
-                                 String username,
+  String user;
 
-                                 @NotNull(message = "Task title is required")
-                                 @NotBlank(message = "Task title is required")
-                                 String title,
-                                 String description) {
-    this.username = username;
+  public CreateUpdateTaskRequest(String title, String description) {
     this.title = title;
     this.description = description;
   }

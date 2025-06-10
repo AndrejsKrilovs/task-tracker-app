@@ -4,17 +4,18 @@
     <form @submit.prevent="submitTask">
       <div class="form-group">
         <label for="title">Title</label>
-        <input id="title" v-model="task.title" type="text" />
+        <input id="title" v-model="form.title" type="text" />
+        <p v-if="fieldError.title" class="field-error">{{ fieldError.title }}</p>
       </div>
 
       <div class="form-group">
         <label for="description">Description</label>
-        <textarea id="description" v-model="task.description" rows="5"></textarea>
+        <textarea id="description" v-model="form.description" rows="5"></textarea>
       </div>
 
       <div class="btn-group">
         <button class="main-btn" type="submit">Add Task</button>
-        <button class="main-btn" type="button" @click="$emit('cancel')">Cancel</button>
+        <button class="main-btn" type="button" @click="emit('cancel')">Cancel</button>
       </div>
     </form>
   </div>
@@ -24,14 +25,42 @@
 import { reactive } from 'vue'
 import apiClient from '@/api/axios'
 
-const task = reactive({
-  title: '',
-  description: ''
+const emit = defineEmits(['cancel'])
+const fieldError = reactive<{ [key: string]: string }>({})
+
+const form = reactive({
+  id: null,
+  title: null,
+  description: null
 })
 
 async function submitTask() {
-  console.log('Task to submit')
-}
+  try {
+    const response = await apiClient.post('/tasks/create', {
+      id: form.id,
+      title: form.title,
+      description: form.description
+    })
+
+    if (response.status === 201) {
+      alert(`Task '${response.data.title}' created`)
+      form.title = null
+      form.description = null
+      emit('cancel')
+    }
+  }
+  catch(exception: any) {
+    if (exception.response.status === 400) {
+      const errorEntry = Object.entries(exception.response.data)
+        .filter(([key, value]) => key.includes('message'))
+        .flatMap(([key, value]) => Object.entries(value))
+        .find(([key, value]) => key.includes('title'))
+
+      const [key, value] = errorEntry
+      fieldError.title = value as string
+    }
+  }
+ }
 </script>
 
 <style scoped>

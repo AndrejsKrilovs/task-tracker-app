@@ -75,8 +75,7 @@ public class UserFacade {
     String result = executor.run(LoginCommand.class, request);
     log.info("Successfully logged in '{}' with status '{}'", request.username(), Response.Status.OK);
 
-    Map<String, String> entityToResponse = Map.of("user", request.username(), "token", result);
-    return Response.status(Response.Status.OK).entity(entityToResponse).build();
+    return Response.status(Response.Status.OK).entity(Map.of("token", result)).build();
   }
 
   @GET
