@@ -12,7 +12,6 @@ import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.entity.UserRole;
 import krilovs.andrejs.app.mapper.task.TaskMapper;
 import krilovs.andrejs.app.repository.TaskRepository;
-import krilovs.andrejs.app.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -44,9 +42,6 @@ class CreateCommandTest {
 
   @Mock
   TaskRepository taskRepository;
-
-  @Mock
-  UserRepository userRepository;
 
   @Mock
   TaskMapper taskMapper;
@@ -124,7 +119,6 @@ class CreateCommandTest {
   }
 
   private void prepareMocks(CreateUpdateTaskRequest request) {
-    when(userRepository.findUserByUsername("username")).thenReturn(Optional.of(userEntity));
     when(taskMapper.toEntity(request)).thenReturn(taskEntity);
     when(taskMapper.toDto(any())).thenReturn(
       new TaskResponse(

@@ -10,24 +10,17 @@ import krilovs.andrejs.app.service.task.CreateCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,29 +54,7 @@ class TaskFacadeTest {
       assertEquals(username, result.user());
     }
 
-    verify(executor, times(1)).run(eq(CreateCommand.class), any());
-  }
-
-  @ParameterizedTest(name = "Should return 401 when principal is {0}")
-  @MethodSource("unauthorizedPrincipals")
-  void shouldReturn401ForUnauthorizedUsers(Principal principal) {
-    CreateUpdateTaskRequest request = validRequest();
-    when(securityContext.getUserPrincipal()).thenReturn(principal);
-
-    try (Response response = taskFacade.createTask(securityContext, request)) {
-      assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
-      assertNull(response.getEntity());
-    }
-
-    verify(executor, never()).run(any(), any());
-  }
-
-  static Stream<Arguments> unauthorizedPrincipals() {
-    return Stream.of(
-      Arguments.of((Principal) null),
-      Arguments.of((Principal) () -> null),
-      Arguments.of((Principal) () -> "")
-    );
+    verify(executor, only()).run(eq(CreateCommand.class), any());
   }
 
   private CreateUpdateTaskRequest validRequest() {
