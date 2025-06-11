@@ -20,7 +20,12 @@
 
       <h1 class="main-title">Your Tasks</h1>
       <p class="subtitle">This is where your task list will be shown.</p>
-      <!-- TODO: Replace with real task list -->
+
+      <TaskStatusPanel
+        v-for="status in availableStatuses"
+        :key="status"
+        :status="statusDescriptions[status] || status"
+      />
     </main>
   </div>
 </template>
@@ -30,6 +35,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import CreateTask from './CreateTask'
+import TaskStatusPanel from './TaskStatusPanel'
 import { hasTaskCreateAccess, extractUsername } from '@/utils/jwt'
 
 const router = useRouter()
@@ -37,10 +43,27 @@ const language = ref('en')
 const canCreateTask = ref(false)
 const showCreateForm = ref(false)
 const user = ref<string | null>(null)
+const availableStatuses = ref<string[]>([])
 
-onMounted(() => {
+const statusDescriptions: Record<string, string> = {
+  READY_FOR_DEVELOPMENT: 'Ready for development tasks',
+  IN_DEVELOPMENT: 'Tasks in development progress',
+  CODE_REVIEW: 'Waiting for code review approve',
+  READY_FOR_TEST: 'Tasks ready for test',
+  IN_TESTING: 'Tasks in testing',
+  REOPEN: 'Reopened tasks',
+  COMPLETED: 'Completed tasks'
+}
+
+onMounted(async () => {
   user.value = extractUsername()
   canCreateTask.value = hasTaskCreateAccess()
+
+  const response = await apiClient.get('/tasks/statuses')
+  if (response.status === 200) {
+    availableStatuses.value = response.data.statuses
+  }
+
   router.replace('/tasks')
 })
 

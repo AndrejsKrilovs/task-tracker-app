@@ -4,6 +4,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -18,9 +19,11 @@ import krilovs.andrejs.app.dto.ChangeTaskStatusRequest;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.TaskResponse;
+import krilovs.andrejs.app.dto.TaskStatusResponse;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.task.ChangeStatusCommand;
 import krilovs.andrejs.app.service.task.CreateCommand;
+import krilovs.andrejs.app.service.task.ShowAvailableTaskStatusesCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -28,6 +31,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
+import java.util.List;
 
 @Slf4j
 @Path("/api/v1/task-tracker/tasks")
@@ -57,6 +62,25 @@ public class TaskFacade {
     TaskResponse result = executor.run(CreateCommand.class, request);
     log.info("Successfully created task '{}' with status '{}'", request, Response.Status.CREATED);
     return Response.status(Response.Status.CREATED).entity(result).build();
+  }
+
+  @GET
+  @Path("/statuses")
+  @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER", "SOFTWARE_DEVELOPER", "QA_SPECIALIST"})
+  @Operation(summary = "Show available user task statuses", description = "Shows available task statuses, based on user role")
+  @APIResponses(value = {
+    @APIResponse(responseCode = "200", description = "Available user statuses",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to create task")
+  })
+  public Response getUserStatuses(@Context SecurityContext securityContext) {
+    log.info("Requested to show task statuses based on user '{}' role", securityContext.getUserPrincipal().getName());
+    TaskStatusResponse response = executor.run(ShowAvailableTaskStatusesCommand.class, null);
+    log.info(
+      "Successfully showed available task statuses for user '{}' with response status status '{}'",
+      securityContext.getUserPrincipal().getName(), Response.Status.OK
+    );
+    return Response.ok(response).build();
   }
 
   @PUT
