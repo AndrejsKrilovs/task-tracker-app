@@ -2,7 +2,7 @@
   <div class="task-card" @click="openModal">
     <h3>{{ task.title }}</h3>
     <p class="subtitle">
-      <span>Created by {{ task.user }}</span><br/>
+      <span>Last modified by {{ task.user }}</span><br/>
       <span>{{ task.createdAt}}</span>
     </p>
     <p class="description">{{ task.description }}</p>

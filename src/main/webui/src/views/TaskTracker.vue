@@ -19,11 +19,13 @@
       <CreateTask v-if="showCreateForm" @cancel="showCreateForm = false" />
       <h1 class="main-title">Task board</h1>
       <TaskStatusPanel
+        v-if="canShowTaskStatuses"
         v-for="status in availableStatuses"
         :key="status"
         :status="status"
         :statusValue="statusDescriptions[status] || status"
       />
+      <p v-else class="subtitle"> {{ unauthorizedUserMessage }} </p>
     </main>
   </div>
 </template>
@@ -34,14 +36,16 @@ import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import CreateTask from './CreateTask'
 import TaskStatusPanel from './TaskStatusPanel'
-import { hasTaskCreateAccess, extractUsername } from '@/utils/jwt'
+import { hasTaskCreateAccess, extractUsername, hasTaskStatusViewAccess } from '@/utils/jwt'
 
 const router = useRouter()
 const language = ref('en')
 const canCreateTask = ref(false)
 const showCreateForm = ref(false)
 const user = ref<string | null>(null)
+const canShowTaskStatuses = ref(false)
 const availableStatuses = ref<string[]>([])
+const unauthorizedUserMessage = ref<string>('')
 
 const statusDescriptions: Record<string, string> = {
   READY_FOR_DEVELOPMENT: 'Ready for development tasks',
@@ -56,10 +60,21 @@ const statusDescriptions: Record<string, string> = {
 onMounted(async () => {
   user.value = extractUsername()
   canCreateTask.value = hasTaskCreateAccess()
+  canShowTaskStatuses.value = hasTaskStatusViewAccess()
 
-  const response = await apiClient.get('/tasks/statuses')
-  if (response.status === 200) {
-    availableStatuses.value = response.data.statuses
+  try {
+    const response = await apiClient.get('/tasks/statuses')
+    if (response.status === 200) {
+      availableStatuses.value = response.data.statuses
+    }
+  }
+  catch(exception: any) {
+    if (exception.response.status === 403) {
+      unauthorizedUserMessage.value = `
+        No available tasks show for user with undefined role.
+        Please contact Business analyst, Product owner or Scrum master
+      `
+    }
   }
 
   router.replace('/tasks')
