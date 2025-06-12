@@ -1,4 +1,31 @@
 /* src/assets/styles.css */
+:root {
+  --cards-per-page: 5;
+}
+
+@media (max-width: 1445px) {
+  :root {
+    --cards-per-page: 4;
+  }
+}
+
+@media (max-width: 1185px) {
+  :root {
+    --cards-per-page: 3;
+  }
+}
+
+@media (max-width: 950px) {
+  :root {
+    --cards-per-page: 2;
+  }
+}
+
+@media (max-width: 666px) {
+  :root {
+    --cards-per-page: 1;
+  }
+}
 
 .btn-primary {
   background-color: #4299e1;
@@ -71,4 +98,8 @@ select:focus {
   color: #e53e3e;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.subtitle {
+  color: #4a5568;
 }

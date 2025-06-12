@@ -68,4 +68,14 @@ public class TaskRepository {
       .setMaxResults(limit)
       .getResultList();
   }
+
+  public long countTasksByStatus(TaskStatus status) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+    Root<Task> root = countQuery.from(Task.class);
+
+    countQuery.select(cb.count(root)).where(cb.equal(root.get("status"), status));
+    log.info("Getting total count for tasks with status '{}'", status);
+    return entityManager.createQuery(countQuery).getSingleResult();
+  }
 }

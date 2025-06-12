@@ -17,10 +17,7 @@
 
     <main class="main-content">
       <CreateTask v-if="showCreateForm" @cancel="showCreateForm = false" />
-
-      <h1 class="main-title">Your Tasks</h1>
-      <p class="subtitle">This is where your task list will be shown.</p>
-
+      <h1 class="main-title">Task board</h1>
       <TaskStatusPanel
         v-for="status in availableStatuses"
         :key="status"
@@ -119,7 +116,7 @@ async function logout() {
 
 .main-content {
   background: white;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   flex-grow: 1;
@@ -130,9 +127,5 @@ async function logout() {
   font-weight: 700;
   color: #2d3748;
   margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: #4a5568;
 }
 </style>

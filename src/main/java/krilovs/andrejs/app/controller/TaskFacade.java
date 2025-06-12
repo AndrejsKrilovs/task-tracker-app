@@ -74,7 +74,7 @@ public class TaskFacade {
   @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER", "SOFTWARE_DEVELOPER", "QA_SPECIALIST"})
   @Operation(summary = "Show available user task statuses", description = "Shows available task statuses, based on user role")
   @APIResponses(value = {
-    @APIResponse(responseCode = "200", description = "Available user statuses",
+    @APIResponse(responseCode = "200", description = "Task statuses whose are available for current user",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
     @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show task statuses")
   })
@@ -96,7 +96,7 @@ public class TaskFacade {
     description = "Show available tasks for selected status"
   )
   @APIResponses(value = {
-    @APIResponse(responseCode = "200", description = "Available available tasks",
+    @APIResponse(responseCode = "200", description = "Available tasks by selected status",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskListResponse.class))),
     @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show tasks")
   })
@@ -106,7 +106,10 @@ public class TaskFacade {
     FindTaskByStatusRequest request = new FindTaskByStatusRequest(status, offset, limit);
     log.info("Requested to show tasks for status '{}'", status);
     TaskListResponse response = executor.run(FindCommand.class, request);
-    log.info("Successfully showed first {} tasks with response status '{}'", response.tasks().size(), Response.Status.OK);
+    log.info(
+      "Successfully showed {} tasks from {} with response status '{}'",
+      response.tasks().size(), response.tasksCount(), Response.Status.OK
+    );
     return Response.ok(response).build();
   }
 

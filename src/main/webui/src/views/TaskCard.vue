@@ -1,14 +1,11 @@
 <template>
-  <div class="task-card">
+  <div class="task-card" @click="openModal">
     <h3>{{ task.title }}</h3>
-    <p class="status-label">
+    <p class="subtitle">
       <span>Created by {{ task.user }}</span><br/>
       <span>{{ task.createdAt}}</span>
     </p>
     <p class="description">{{ task.description }}</p>
-    <div class="actions">
-      <button>Change task status</button>
-    </div>
   </div>
 </template>
 
@@ -16,6 +13,10 @@
 import { Task } from '@/assets/types'
 
 const props = defineProps<{ task: Task }>()
+
+function openModal() {
+  console.log(props.task)
+}
 </script>
 
 <style scoped>
@@ -26,7 +27,7 @@ const props = defineProps<{ task: Task }>()
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  width: 250px;
+  width: 230px;
   flex: 0 0 auto;
 }
 
@@ -36,11 +37,8 @@ const props = defineProps<{ task: Task }>()
   color: #2d3748;
 }
 
-.status-label {
-  color: #718096;
-  font-style: italic;
-  font-size: 1rem;
-  margin: 0 0 0.5rem;
+.subtitle {
+  color: #4a5568;
 }
 
 .description {
@@ -59,19 +57,5 @@ const props = defineProps<{ task: Task }>()
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
-}
-
-.actions button {
-  background: #e2e8f0;
-  color: #2d3748;
-  border: none;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.actions button:hover {
-  background: #cbd5e0;
 }
 </style>

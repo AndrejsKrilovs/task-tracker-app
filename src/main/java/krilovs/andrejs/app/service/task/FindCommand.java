@@ -27,7 +27,8 @@ public class FindCommand implements ServiceCommand<FindTaskByStatusRequest, Task
   public TaskListResponse execute(FindTaskByStatusRequest input) {
     List<Task> selectedTasks = taskRepository.findTasksByStatus(input.status(), input.offset(), input.limit());
     return new TaskListResponse(
-      selectedTasks.stream().map(taskEntity -> taskMapper.toDto(taskEntity)).toList()
+      selectedTasks.stream().map(taskEntity -> taskMapper.toDto(taskEntity)).toList(),
+      taskRepository.countTasksByStatus(input.status())
     );
   }
 }

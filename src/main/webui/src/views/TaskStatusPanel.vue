@@ -1,10 +1,6 @@
 <template>
   <div class="accordion">
-    <div
-      class="accordion-header"
-      :style="statusStyle"
-      @click="statusSelect"
-    >
+    <div class="accordion-header" :style="statusStyle" @click="statusSelect">
       <strong>{{ statusValue }}</strong>
       <span>{{ isOpen ? '▲' : '▼' }}</span>
     </div>
@@ -17,20 +13,30 @@
           :task="task"
         />
       </div>
-      <p v-else class="empty-message">No tasks in this status.</p>
+      <p v-else class="subtitle">No tasks in this status.</p>
+
+      <div v-if="totalPages > 1" class="pagination">
+        <button @click="currentPage--" :disabled="currentPage === 1">Prev</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Task } from '@/assets/types'
 import TaskCard from './TaskCard'
 import apiClient from '@/api/axios'
 
+const props = defineProps<{ statusValue: string; status: string }>()
+
 const isOpen = ref(false)
+const totalTasks = ref(0)
+const currentPage = ref(1)
+const cardsPerPage = ref(5)
 const tasksForStatus = ref<Task[]>([])
-const props = defineProps<{ statusValue: string, status: string }>()
 
 const statusStyle = computed(() => {
   const colorMap: Record<string, string> = {
@@ -40,8 +46,7 @@ const statusStyle = computed(() => {
     READY_FOR_TEST: '#faf089',
     IN_TESTING: '#f0fff4',
     REOPEN: '#fef2f2',
-    COMPLETED: '#c6f6d5',
-    UNKNOWN: '#e2e8f0'
+    COMPLETED: '#c6f6d5'
   }
   return {
     backgroundColor: colorMap[props.status] || '#e2e8f0',
@@ -50,17 +55,52 @@ const statusStyle = computed(() => {
   }
 })
 
+function updateCardsPerPage() {
+  const cssValue = getComputedStyle(document.documentElement).getPropertyValue('--cards-per-page')
+  cardsPerPage.value = parseInt(cssValue.trim()) || 5
+}
+
+onMounted(() => {
+  updateCardsPerPage()
+  window.addEventListener('resize', updateCardsPerPage)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateCardsPerPage)
+})
+
+async function fetchTasks() {
+  const offset = (currentPage.value - 1) * cardsPerPage.value
+  const limit = cardsPerPage.value
+
+  const { data } = await apiClient.get(`/tasks/${props.status}`, {
+    params: { offset, limit }
+  })
+
+  tasksForStatus.value = data.tasks
+  totalTasks.value = data.tasksCount || 0
+}
+
 async function statusSelect() {
   isOpen.value = !isOpen.value
+
   if (isOpen.value) {
-    await apiClient.get(`/tasks/${props.status}`)
-      .then(response => response.data)
-      .then(json => tasksForStatus.value = json.tasks)
+    currentPage.value = 1
+    await fetchTasks()
   }
-  if (!isOpen.value) {
+  else {
     tasksForStatus.value = []
   }
 }
+
+watch(currentPage, async () => {
+  if (isOpen.value)
+    await fetchTasks()
+})
+
+const totalPages = computed(() =>
+  Math.ceil(totalTasks.value / cardsPerPage.value)
+)
 </script>
 
 <style scoped>
@@ -85,25 +125,31 @@ async function statusSelect() {
   background: white;
 }
 
-.empty-message {
-  color: #718096;
-  font-style: italic;
-}
-
 .task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.5rem;
+}
+
+.pagination {
   display: flex;
-  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
   gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
+  margin-top: 1rem;
 }
 
-.task-list::-webkit-scrollbar {
-    height: 6px;
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #edf2f7;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
-.task-list::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
-    border-radius: 4px;
+.pagination button:disabled {
+  background-color: #e2e8f0;
+  cursor: not-allowed;
 }
 </style>

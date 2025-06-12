@@ -11,6 +11,13 @@ public record TaskListResponse(
     defaultValue = "[]",
     description = "Task lists whose are selected"
   )
-  List<TaskResponse> tasks
+  List<TaskResponse> tasks,
+
+  @Schema(
+    title = "Total elements count",
+    defaultValue = "0",
+    description = "Total elements count for tasks with current status"
+  )
+  Long tasksCount
 ) {
 }
