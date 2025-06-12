@@ -4,6 +4,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -18,11 +19,15 @@ import jakarta.ws.rs.core.SecurityContext;
 import krilovs.andrejs.app.dto.ChangeTaskStatusRequest;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.ExceptionResponse;
+import krilovs.andrejs.app.dto.FindTaskByStatusRequest;
+import krilovs.andrejs.app.dto.TaskListResponse;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.dto.TaskStatusResponse;
+import krilovs.andrejs.app.entity.TaskStatus;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.task.ChangeStatusCommand;
 import krilovs.andrejs.app.service.task.CreateCommand;
+import krilovs.andrejs.app.service.task.FindCommand;
 import krilovs.andrejs.app.service.task.ShowAvailableTaskStatusesCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -71,15 +76,37 @@ public class TaskFacade {
   @APIResponses(value = {
     @APIResponse(responseCode = "200", description = "Available user statuses",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
-    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to create task")
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show task statuses")
   })
   public Response getUserStatuses(@Context SecurityContext securityContext) {
     log.info("Requested to show task statuses based on user '{}' role", securityContext.getUserPrincipal().getName());
     TaskStatusResponse response = executor.run(ShowAvailableTaskStatusesCommand.class, null);
     log.info(
-      "Successfully showed available task statuses for user '{}' with response status status '{}'",
+      "Successfully showed available task statuses for user '{}' with response status '{}'",
       securityContext.getUserPrincipal().getName(), Response.Status.OK
     );
+    return Response.ok(response).build();
+  }
+
+  @GET
+  @Path("/{status}")
+  @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER", "SOFTWARE_DEVELOPER", "QA_SPECIALIST"})
+  @Operation(
+    summary = "Show available tasks for selected status",
+    description = "Show available tasks for selected status"
+  )
+  @APIResponses(value = {
+    @APIResponse(responseCode = "200", description = "Available available tasks",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskListResponse.class))),
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show tasks")
+  })
+  public Response getUserTasksByStatus(@PathParam("status") TaskStatus status,
+                                       @QueryParam("offset") @DefaultValue("0") int offset,
+                                       @QueryParam("limit") @DefaultValue("6") int limit) {
+    FindTaskByStatusRequest request = new FindTaskByStatusRequest(status, offset, limit);
+    log.info("Requested to show tasks for status '{}'", status);
+    TaskListResponse response = executor.run(FindCommand.class, request);
+    log.info("Successfully showed first {} tasks with response status '{}'", response.tasks().size(), Response.Status.OK);
     return Response.ok(response).build();
   }
 

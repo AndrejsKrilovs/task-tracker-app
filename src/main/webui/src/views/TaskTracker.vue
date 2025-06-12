@@ -24,7 +24,8 @@
       <TaskStatusPanel
         v-for="status in availableStatuses"
         :key="status"
-        :status="statusDescriptions[status] || status"
+        :status="status"
+        :statusValue="statusDescriptions[status] || status"
       />
     </main>
   </div>

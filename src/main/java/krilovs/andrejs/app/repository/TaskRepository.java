@@ -4,12 +4,15 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 import krilovs.andrejs.app.entity.Task;
 import krilovs.andrejs.app.entity.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -46,5 +49,23 @@ public class TaskRepository {
     update.where(cb.equal(root.get("id"), taskEntity.getId()));
     entityManager.createQuery(update).executeUpdate();
     log.info("Updated task to {} into database", taskEntity);
+  }
+
+  public List<Task> findTasksByStatus(TaskStatus status, int offset, int limit) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Task> select = cb.createQuery(Task.class);
+    Root<Task> root = select.from(Task.class);
+
+    ParameterExpression<TaskStatus> statusParam = cb.parameter(TaskStatus.class, "status");
+    select.select(root)
+      .where(cb.equal(root.get("status"), statusParam))
+      .orderBy(cb.desc(root.get("createdAt")));
+
+    log.info("Finding tasks with status '{}'", status);
+    return entityManager.createQuery(select)
+      .setParameter("status", status)
+      .setFirstResult(offset)
+      .setMaxResults(limit)
+      .getResultList();
   }
 }
