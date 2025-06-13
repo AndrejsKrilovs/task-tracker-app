@@ -37,8 +37,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import java.util.List;
-
 @Slf4j
 @Path("/api/v1/task-tracker/tasks")
 @Produces(MediaType.APPLICATION_JSON)
@@ -65,7 +63,7 @@ public class TaskFacade {
     request.setUser(securityContext.getUserPrincipal().getName());
     log.info("Requested to create new task '{}'", request);
     TaskResponse result = executor.run(CreateCommand.class, request);
-    log.info("Successfully created task '{}' with status '{}'", request, Response.Status.CREATED);
+    log.info("Successfully created task '{}' with status '{}'", result, Response.Status.CREATED);
     return Response.status(Response.Status.CREATED).entity(result).build();
   }
 
@@ -75,10 +73,10 @@ public class TaskFacade {
   @Operation(summary = "Show available user task statuses", description = "Shows available task statuses, based on user role")
   @APIResponses(value = {
     @APIResponse(responseCode = "200", description = "Task statuses whose are available for current user",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskStatusResponse.class))),
     @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show task statuses")
   })
-  public Response getUserStatuses(@Context SecurityContext securityContext) {
+  public Response showUserAvailableTaskStatuses(@Context SecurityContext securityContext) {
     log.info("Requested to show task statuses based on user '{}' role", securityContext.getUserPrincipal().getName());
     TaskStatusResponse response = executor.run(ShowAvailableTaskStatusesCommand.class, null);
     log.info(

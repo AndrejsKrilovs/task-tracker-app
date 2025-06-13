@@ -24,7 +24,7 @@
       </div>
       <div class="form-group">
         <label for="role">Role</label>
-        <select v-model="form.role" class="role-select">
+        <select v-model="form.role" class="item-select">
           <option :value="null">Default role</option>
           <option
             v-for="(label, value) in roleOptions"
@@ -182,14 +182,6 @@ async function onSubmit() {
 
 .submit-btn:hover {
   background-color: #3182ce;
-}
-
-.role-select {
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #cbd5e0;
-  background: #f7fafc;
-  font-size: 1rem;
 }
 
 .error-message {

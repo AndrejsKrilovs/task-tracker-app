@@ -3,7 +3,7 @@
     <header class="header">
       <div class="welcome-text">Welcome, {{ user }}!</div>
       <div class="header-actions">
-        <select v-model="language" class="language-select">
+        <select v-model="language" class="item-select">
           <option value="en">EN</option>
           <option value="ru">RU</option>
         </select>
@@ -16,7 +16,13 @@
     </header>
 
     <main class="main-content">
-      <CreateTask v-if="showCreateForm" @cancel="showCreateForm = false" />
+      <TaskModal
+        v-if="showCreateForm"
+        @createRequest=true
+        @updateRequest=false
+        @cancel="showCreateForm = false"
+      />
+
       <h1 class="main-title">Task board</h1>
       <TaskStatusPanel
         v-if="canShowTaskStatuses"
@@ -34,7 +40,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
-import CreateTask from './CreateTask'
+import TaskModal from './TaskModal'
 import TaskStatusPanel from './TaskStatusPanel'
 import { hasTaskCreateAccess, extractUsername, hasTaskStatusViewAccess } from '@/utils/jwt'
 
@@ -121,7 +127,7 @@ async function logout() {
   align-items: center;
 }
 
-.language-select {
+.item-select {
   padding: 0.5rem;
   border-radius: 8px;
   border: 1px solid #cbd5e0;

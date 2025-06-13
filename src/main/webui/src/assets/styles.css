@@ -103,3 +103,11 @@ select:focus {
 .subtitle {
   color: #4a5568;
 }
+
+.item-select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e0;
+  background: #f7fafc;
+  font-size: 1rem;
+}
