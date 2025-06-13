@@ -18,6 +18,7 @@
     <main class="main-content">
       <TaskModal
         v-if="showCreateForm"
+        :task="{}"
         @createRequest=true
         @updateRequest=false
         @cancel="showCreateForm = false"

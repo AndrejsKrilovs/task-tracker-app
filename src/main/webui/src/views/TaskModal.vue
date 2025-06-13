@@ -35,9 +35,11 @@
 </template>
 
 <script setup lang="ts">
+import { Task } from '@/api/types'
 import { reactive, computed } from 'vue'
 import apiClient from '@/api/axios'
 
+const props = defineProps<{ task: Task | {} }>()
 const emit = defineEmits<{
   cancel: void
   createRequest: boolean
