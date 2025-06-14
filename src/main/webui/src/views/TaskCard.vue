@@ -12,6 +12,7 @@
     v-if="showUpdateForm"
     :task="props.task"
     @cancel="showUpdateForm = false"
+    @submitted="handleSubmitted"
   />
 </template>
 
@@ -20,8 +21,14 @@ import { ref } from 'vue'
 import { Task } from '@/assets/types'
 import TaskModal from './TaskModal'
 
+const emit = defineEmits<{ submitted: void }>()
 const props = defineProps<{ task: Task }>()
 const showUpdateForm = ref(false)
+
+function handleSubmitted() {
+  showUpdateForm.value = false
+  emit('submitted')
+}
 </script>
 
 <style scoped>

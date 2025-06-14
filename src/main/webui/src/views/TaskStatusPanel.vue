@@ -1,6 +1,10 @@
 <template>
   <div class="accordion">
-    <div class="accordion-header" :style="statusStyle" @click="statusSelect">
+    <div
+      class="accordion-header"
+      :style="statusStyle"
+      @click="statusSelect"
+    >
       <strong>{{ statusValue }}</strong>
       <span>{{ isOpen ? '▲' : '▼' }}</span>
     </div>
@@ -11,14 +15,29 @@
           v-for="task in tasksForStatus"
           :key="task.id"
           :task="task"
+          @submitted="closePanel"
         />
       </div>
-      <p v-else class="subtitle">No tasks in this status.</p>
+      <p v-else class="subtitle">
+        No tasks in this status.
+      </p>
 
       <div v-if="totalPages > 1" class="pagination">
-        <button @click="currentPage--" :disabled="currentPage === 1">Prev</button>
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+        >
+          Prev
+        </button>
+
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
+
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+        >
+          Next
+        </button>
       </div>
     </div>
   </div>
@@ -33,9 +52,9 @@ import apiClient from '@/api/axios'
 const props = defineProps<{ statusValue: string; status: string }>()
 
 const isOpen = ref(false)
-const totalTasks = ref(0)
 const currentPage = ref(1)
 const cardsPerPage = ref(5)
+const totalTasks = ref(0)
 const tasksForStatus = ref<Task[]>([])
 
 const statusStyle = computed(() => {
@@ -60,6 +79,10 @@ function updateCardsPerPage() {
   cardsPerPage.value = parseInt(cssValue.trim()) || 5
 }
 
+function closePanel() {
+  isOpen.value = false
+}
+
 onMounted(() => {
   updateCardsPerPage()
   window.addEventListener('resize', updateCardsPerPage)
@@ -72,7 +95,6 @@ onUnmounted(() => {
 async function fetchTasks() {
   const offset = (currentPage.value - 1) * cardsPerPage.value
   const limit = cardsPerPage.value
-
   const { data } = await apiClient.get(`/tasks/${props.status}`, {
     params: { offset, limit }
   })
@@ -83,9 +105,9 @@ async function fetchTasks() {
 
 async function statusSelect() {
   isOpen.value = !isOpen.value
+  currentPage.value = 1
 
   if (isOpen.value) {
-    currentPage.value = 1
     await fetchTasks()
   }
   else {
@@ -93,9 +115,10 @@ async function statusSelect() {
   }
 }
 
-watch(currentPage, async () => {
-  if (isOpen.value)
+watch(currentPage, async (newPage, oldPage) => {
+  if (isOpen.value && newPage !== oldPage) {
     await fetchTasks()
+  }
 })
 
 const totalPages = computed(() =>

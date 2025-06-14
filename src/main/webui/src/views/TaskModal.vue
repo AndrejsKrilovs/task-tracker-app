@@ -66,7 +66,7 @@ import { Task } from '@/api/types'
 import { reactive, ref, onMounted, computed } from 'vue'
 import apiClient from '@/api/axios'
 
-const emit = defineEmits<{ cancel: void }>()
+const emit = defineEmits<{ cancel: void; submitted: void }>()
 const props = defineProps<{ task: Task | {} }>()
 
 const task = props.task as Task
@@ -101,6 +101,9 @@ function handleSubmit() {
   if (isUpdate.value && !isUnchanged()) {
     updateTask()
   }
+  if (isUnchanged()) {
+    emit('cancel')
+  }
   if (!isUpdate.value) {
     createTask()
   }
@@ -113,6 +116,7 @@ async function createTask() {
       description: form.description?.trim()
     })
 
+    emit('submitted')
     alert(`Task '${data.title}' created`)
     resetForm()
     emit('cancel')
@@ -130,6 +134,7 @@ async function updateTask() {
       status: form.status
     })
 
+    emit('submitted')
     alert(`Task '${data.title}' updated`)
     resetForm()
     emit('cancel')
