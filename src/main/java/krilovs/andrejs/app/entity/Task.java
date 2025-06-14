@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@ToString
+@ToString(exclude = "user")
 @Table(name = "task_table")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Task {

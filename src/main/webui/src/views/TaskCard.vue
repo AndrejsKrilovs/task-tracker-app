@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" @click="openModal">
+  <div class="task-card" @click="showUpdateForm = true">
     <h3>{{ task.title }}</h3>
     <p class="subtitle">
       <span>Last modified by {{ task.user }}</span><br/>
@@ -7,16 +7,21 @@
     </p>
     <p class="description">{{ task.description }}</p>
   </div>
+
+  <TaskModal
+    v-if="showUpdateForm"
+    :task="props.task"
+    @cancel="showUpdateForm = false"
+  />
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Task } from '@/assets/types'
+import TaskModal from './TaskModal'
 
 const props = defineProps<{ task: Task }>()
-
-function openModal() {
-  console.log(props.task)
-}
+const showUpdateForm = ref(false)
 </script>
 
 <style scoped>

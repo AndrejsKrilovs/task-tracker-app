@@ -1,5 +1,6 @@
 package krilovs.andrejs.app.controller;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -24,11 +25,14 @@ import krilovs.andrejs.app.dto.TaskListResponse;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.dto.TaskStatusResponse;
 import krilovs.andrejs.app.entity.TaskStatus;
+import krilovs.andrejs.app.mapper.task.TaskStatusDeserializer;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.task.ChangeStatusCommand;
 import krilovs.andrejs.app.service.task.CreateCommand;
 import krilovs.andrejs.app.service.task.FindCommand;
 import krilovs.andrejs.app.service.task.ShowAvailableTaskStatusesCommand;
+import krilovs.andrejs.app.service.task.ShowUserAvailableTaskStatusesCommand;
+import krilovs.andrejs.app.service.task.UpdateCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -78,7 +82,7 @@ public class TaskFacade {
   })
   public Response showUserAvailableTaskStatuses(@Context SecurityContext securityContext) {
     log.info("Requested to show task statuses based on user '{}' role", securityContext.getUserPrincipal().getName());
-    TaskStatusResponse response = executor.run(ShowAvailableTaskStatusesCommand.class, null);
+    TaskStatusResponse response = executor.run(ShowUserAvailableTaskStatusesCommand.class, null);
     log.info(
       "Successfully showed available task statuses for user '{}' with response status '{}'",
       securityContext.getUserPrincipal().getName(), Response.Status.OK
@@ -111,29 +115,46 @@ public class TaskFacade {
     return Response.ok(response).build();
   }
 
+  @GET
+  @Path("/statusesToChange/{previousTaskStatus}")
+  @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER", "SOFTWARE_DEVELOPER", "QA_SPECIALIST"})
+  @Operation(summary = "Show available statuses to change", description = "Show available statuses to change")
+  @APIResponses(value = {
+    @APIResponse(responseCode = "200", description = "Statuses whose are available for current task",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskStatusResponse.class))),
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show task statuses")
+  })
+  public Response showTaskChangeStatuses(@PathParam("previousTaskStatus")
+                                         @JsonDeserialize(using = TaskStatusDeserializer.class)
+                                         TaskStatus previousTaskStatus) {
+    log.info("Requested to show available statuses for change from '{}'", previousTaskStatus);
+    TaskStatusResponse response = executor.run(ShowAvailableTaskStatusesCommand.class, previousTaskStatus);
+    log.info("Successfully shown available statuses for change. Operation status '{}'", Response.Status.OK);
+    return Response.ok(response).build();
+  }
+
   @PUT
   @Path("/update/{taskId}")
   @Operation(summary = "Update existing task", description = "Updates existing task with provided credentials")
+  @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER", "SOFTWARE_DEVELOPER", "QA_SPECIALIST"})
   @APIResponses(value = {
     @APIResponse(responseCode = "202", description = "Task successfully updated",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskResponse.class))),
     @APIResponse(responseCode = "400", description = "Incorrect task credentials",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-    @APIResponse(responseCode = "401", description = "Not authorized user",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to update task"),
     @APIResponse(responseCode = "409", description = "User role not allowed to update tasks",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
   })
-  public Response updateTask(@PathParam("taskId") Long taskId,
-                             @QueryParam("username") String username,
+  public Response updateTask(@Context SecurityContext securityContext,
+                             @PathParam("taskId") Long taskId,
                              @Valid CreateUpdateTaskRequest request) {
-//    request.setId(taskId);
-//    request.setUsername(username);
-//    log.info("Requested to update task '{}'", request);
-//    TaskResponse result = executor.run(UpdateCommand.class, request);
-//    log.info("Successfully update task '{}' with status '{}'", request, Response.Status.ACCEPTED);
-//    return Response.status(Response.Status.ACCEPTED).entity(result).build();
-    return Response.status(Response.Status.ACCEPTED).build();
+    request.setId(taskId);
+    request.setUser(securityContext.getUserPrincipal().getName());
+    log.info("Requested to update task '{}'", request);
+    TaskResponse result = executor.run(UpdateCommand.class, request);
+    log.info("Successfully update task '{}' with status '{}'", result, Response.Status.ACCEPTED);
+    return Response.status(Response.Status.ACCEPTED).entity(result).build();
   }
 
   @PUT

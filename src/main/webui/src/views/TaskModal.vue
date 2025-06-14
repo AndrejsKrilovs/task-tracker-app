@@ -2,32 +2,59 @@
   <div class="modal-overlay">
     <div class="submit-task-form">
       <h2 class="form-title">Submit task</h2>
-      <form
-        class="form-content"
-        @submit.prevent="handleSubmit"
-      >
+
+      <form class="form-content" @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="title">Title</label>
-          <input id="title" v-model="form.title" type="text" />
-          <p v-if="fieldError.title" class="field-error">{{ fieldError.title }}</p>
+          <input
+            id="title"
+            v-model="form.title"
+            type="text"
+            placeholder="Enter task title"
+          />
+          <p v-if="fieldError.title" class="field-error">
+            {{ fieldError.title }}
+          </p>
         </div>
 
-        <div v-if="emit.updateRequest" class="form-group">
+        <div v-if="props.task.status" class="form-group">
           <label for="status">Status</label>
-          <select id="status" v-model="form.status" class="item-select">
-            <option value="en">EN</option>
-            <option value="ru">RU</option>
+          <select
+            id="status"
+            v-model="form.status"
+            class="item-select"
+          >
+            <option
+              v-for="status in taskStatusesFromApi"
+              :key="status"
+              :value="status"
+            >
+              {{ status }}
+            </option>
           </select>
         </div>
 
         <div class="form-group">
           <label for="description">Description</label>
-          <textarea id="description" v-model="form.description" rows="5"></textarea>
+          <textarea
+            id="description"
+            v-model="form.description"
+            rows="5"
+            placeholder="Enter task details"
+          />
         </div>
 
         <div class="btn-group">
-          <button class="main-btn" type="submit">Submit Task</button>
-          <button class="main-btn" type="button" @click="emit('cancel')">Cancel</button>
+          <button class="main-btn" type="submit">
+            Submit Task
+          </button>
+          <button
+            class="main-btn"
+            type="button"
+            @click="emit('cancel')"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
@@ -36,63 +63,100 @@
 
 <script setup lang="ts">
 import { Task } from '@/api/types'
-import { reactive, computed } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import apiClient from '@/api/axios'
 
+const emit = defineEmits<{ cancel: void }>()
 const props = defineProps<{ task: Task | {} }>()
-const emit = defineEmits<{
-  cancel: void
-  createRequest: boolean
-  updateRequest: boolean
-}>()
 
-const isUpdate = computed(() => !!emit.updateRequest)
+const task = props.task as Task
+const isUpdate = computed(() => !!task.id)
+
 const fieldError = reactive<{ [key: string]: string }>({})
+const taskStatusesFromApi = ref<string[]>([])
 
 const form = reactive({
-  id: null,
-  title: null,
-  description: null
+  id: task.id || null,
+  title: task.title || null,
+  status: task.status || null,
+  description: task.description || null
 })
 
-async function handleSubmit() {
-  if (isUpdate.value) {
-    await updateTask()
-  } else {
-    await createTask()
+onMounted(async () => {
+  if (task.status) {
+    const { data } = await apiClient.get(`/tasks/statusesToChange/${task.status}`)
+    taskStatusesFromApi.value = [task.status, ...data.statuses]
+  }
+})
+
+function isUnchanged(): boolean {
+  return (
+    task.title === form.title.trim() &&
+    task.status === form.status &&
+    task.description === form.description.trim()
+  )
+}
+
+function handleSubmit() {
+  if (isUpdate.value && !isUnchanged()) {
+    updateTask()
+  }
+  if (!isUpdate.value) {
+    createTask()
   }
 }
 
 async function createTask() {
   try {
-    const response = await apiClient.post('/tasks/create', {
-      id: form.id,
-      title: form.title,
-      description: form.description
+    const { data } = await apiClient.post('/tasks/create', {
+      title: form.title.trim(),
+      description: form.description?.trim()
     })
 
-    if (response.status === 201) {
-      alert(`Task '${response.data.title}' created`)
-      form.title = null
-      form.description = null
-      emit('cancel')
-    }
+    alert(`Task '${data.title}' created`)
+    resetForm()
+    emit('cancel')
   }
-  catch(exception: any) {
-    if (exception.response.status === 400) {
-      const errorEntry = Object.entries(exception.response.data)
-        .filter(([key, value]) => key.includes('message'))
-        .flatMap(([key, value]) => Object.entries(value))
-        .find(([key, value]) => key.includes('title'))
-
-      const [key, value] = errorEntry
-      fieldError.title = value as string
-    }
+  catch (exception: any) {
+    handleValidationError(exception)
   }
 }
 
 async function updateTask() {
-  console.log(form)
+  try {
+    const { data } = await apiClient.put(`/tasks/update/${task.id}`, {
+      title: form.title.trim(),
+      description: form.description?.trim(),
+      status: form.status
+    })
+
+    alert(`Task '${data.title}' updated`)
+    resetForm()
+    emit('cancel')
+  }
+  catch (exception: any) {
+    handleValidationError(exception)
+  }
+}
+
+function resetForm() {
+  form.title = ''
+  form.description = ''
+  form.status = ''
+}
+
+function handleValidationError(exception: any) {
+  if (exception.response?.status === 400) {
+    const errorEntry = Object.entries(exception.response.data)
+      .filter(([key]) => key.includes('message'))
+      .flatMap(([, value]) => Object.entries(value))
+      .find(([key]) => key.includes('title'))
+
+    if (errorEntry) {
+      const [key, value] = errorEntry
+      fieldError.title = value as string
+    }
+  }
 }
 </script>
 
