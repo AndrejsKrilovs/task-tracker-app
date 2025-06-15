@@ -47,7 +47,6 @@ public class CreateUpdateTaskRequest {
   )
   String description;
 
-  @NotNull(message = "Task status is required")
   @JsonDeserialize(using = TaskStatusDeserializer.class)
   @Schema(
     title = "Status",
