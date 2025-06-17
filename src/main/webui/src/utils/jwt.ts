@@ -32,6 +32,15 @@ export function hasTaskCreateAccess(): boolean {
   return groups.some((role: string) => allowedRoles.includes(role))
 }
 
+export function hasTaskUpdateAccess(): boolean {
+  const payload = parseJwtPayload()
+  const allowedRoles = ['BUSINESS_ANALYST', 'PRODUCT_OWNER', 'SCRUM_MASTER']
+  if (!payload || !payload.groups) return false
+
+  const groups = Array.isArray(payload.groups) ? payload.groups : [payload.groups]
+  return groups.some((role: string) => allowedRoles.includes(role))
+}
+
 export function hasTaskStatusViewAccess(): boolean {
   const payload = parseJwtPayload()
   const allowedRoles = ['BUSINESS_ANALYST', 'PRODUCT_OWNER', 'SCRUM_MASTER', 'SOFTWARE_DEVELOPER', 'QA_SPECIALIST']
