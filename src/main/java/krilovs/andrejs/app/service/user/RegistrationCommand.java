@@ -1,6 +1,6 @@
 package krilovs.andrejs.app.service.user;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 
 @Slf4j
-@ApplicationScoped
+@RequestScoped
 public class RegistrationCommand implements ServiceCommand<UserRegistrationRequest, UserResponse> {
   @Inject
   UserRepository userRepository;

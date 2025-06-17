@@ -58,6 +58,7 @@ class RegistrationCommandTest {
 
   @ParameterizedTest(name = "username={0}, password={1}, email={2}, role={3}")
   @CsvSource(value = {
+    "username,password,'',''",
     "username,password,some@test.email,''",
     "username,password,some@test.email,SOFTWARE_DEVELOPER"
   })
@@ -91,8 +92,13 @@ class RegistrationCommandTest {
   }
 
   @ParameterizedTest(name = "username={0}, password={1}, email={2}, role={3}")
-  @CsvSource(value = "username,password,some@test.email,SOFTWARE_DEVELOPER")
-  void shouldThrowExceptionWhenUserAlreadyExists(String username, String password, String email, UserRole role) {
+  @CsvSource(value = {
+    "username,password,'',''",
+    "username,password,some@test.email,''",
+    "username,password,some@test.email,SOFTWARE_DEVELOPER"
+  })
+  void shouldThrowExceptionWhenUserAlreadyExists(String username, String password, String email, String roleString) {
+    UserRole role = (roleString == null || roleString.isBlank()) ? null : UserRole.valueOf(roleString);
     UserRegistrationRequest request = new UserRegistrationRequest(username, password, email, role);
     Mockito.when(userRepository.findUserByUsername("username")).thenReturn(Optional.of(userEntity));
 
@@ -117,21 +123,38 @@ class RegistrationCommandTest {
   }
 
   static Stream<Arguments> validRequests() {
-    UserRegistrationRequest validRequest = new UserRegistrationRequest(
-      "username",
-      "pass",
-      "email@test.com",
-      UserRole.SOFTWARE_DEVELOPER
+    UserRegistrationRequest validRequest1 = new UserRegistrationRequest(
+      "username", "pass", null, null
+    );
+    UserRegistrationRequest validRequest2 = new UserRegistrationRequest(
+      "username", "pass", "email@test.com", null
+    );
+    UserRegistrationRequest validRequest3 = new UserRegistrationRequest(
+      "username", "pass", "email@test.com", UserRole.SOFTWARE_DEVELOPER
     );
 
-    return Stream.of(Arguments.of(validRequest));
+    return Stream.of(Arguments.of(validRequest1), Arguments.of(validRequest2), Arguments.of(validRequest3));
   }
 
   static Stream<Arguments> invalidRequests() {
+    UserRegistrationRequest incorrectRequest1 = new UserRegistrationRequest(
+      null, null, null, null
+    );
+    UserRegistrationRequest incorrectRequest2 = new UserRegistrationRequest(
+      "username", null, null, null
+    );
+    UserRegistrationRequest incorrectRequest3 = new UserRegistrationRequest(
+      null, "pass", null, null
+    );
+    UserRegistrationRequest incorrectRequest4 = new UserRegistrationRequest(
+      "username", "pass", "fake_email", null
+    );
+
     return Stream.of(
-      Arguments.of(new UserRegistrationRequest(null, "pass", "email@test.com", UserRole.SOFTWARE_DEVELOPER)),
-      Arguments.of(new UserRegistrationRequest("user", null, "email@test.com", UserRole.SOFTWARE_DEVELOPER)),
-      Arguments.of(new UserRegistrationRequest("user", "pass", "bad-email", UserRole.SOFTWARE_DEVELOPER))
+      Arguments.of(incorrectRequest1),
+      Arguments.of(incorrectRequest2),
+      Arguments.of(incorrectRequest3),
+      Arguments.of(incorrectRequest4)
     );
   }
 }

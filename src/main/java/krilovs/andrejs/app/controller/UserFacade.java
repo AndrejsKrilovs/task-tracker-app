@@ -1,15 +1,14 @@
 package krilovs.andrejs.app.controller;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -33,7 +32,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.util.Map;
 
 @Slf4j
-@PermitAll
+@ApplicationScoped
 @Path("/api/v1/task-tracker/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -44,6 +43,7 @@ public class UserFacade {
   ServiceCommandExecutor executor;
 
   @POST
+  @PermitAll
   @Path("/register")
   @Operation(summary = "New user registration", description = "Creates new user with provided credentials")
   @APIResponses(value = {
@@ -62,6 +62,7 @@ public class UserFacade {
   }
 
   @POST
+  @PermitAll
   @Path("/login")
   @Operation(summary = "User authentication", description = "Authentication user with provided credentials")
   @APIResponses(value = {
@@ -79,6 +80,7 @@ public class UserFacade {
   }
 
   @GET
+  @PermitAll
   @Path("/logout")
   @Operation(summary = "User logout", description = "Logging out from system")
   @APIResponses(value = {

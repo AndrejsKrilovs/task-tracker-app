@@ -11,7 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public record UserRegistrationRequest(
   @NotNull(message = "Username is required")
   @NotBlank(message = "Username is required")
-  @Size(min = 4, max = 10, message = "Username must be between 4 and 10 characters")
+  @Size(min = 4, max = 30, message = "Username must be between 4 and 30 characters")
   @Schema(
     minLength = 4,
     maxLength = 30,

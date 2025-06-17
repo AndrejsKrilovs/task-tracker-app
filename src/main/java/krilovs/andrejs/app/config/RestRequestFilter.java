@@ -14,7 +14,7 @@ import java.util.UUID;
 @Slf4j
 @Provider
 @Priority(1)
-public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
+public class RestRequestFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
   @Override
   public void filter(ContainerRequestContext requestContext) {
