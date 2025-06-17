@@ -27,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,8 +79,7 @@ class RegistrationCommandTest {
         user.getRole(),
         user.getCreatedAt(),
         user.getLastVisitAt(),
-        List.of(UserPermissions.CAN_SEE_TASK_STATUSES),
-        UUID.randomUUID().toString()
+        List.of(UserPermissions.CAN_SEE_TASK_STATUSES)
       );
     });
 

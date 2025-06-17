@@ -1,7 +1,5 @@
 package krilovs.andrejs.app.mapper.user;
 
-import io.smallrye.jwt.build.Jwt;
-import krilovs.andrejs.app.config.ConfigConstants;
 import krilovs.andrejs.app.dto.UserPermissions;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
@@ -13,12 +11,10 @@ import org.mapstruct.Named;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Mapper(componentModel = "jakarta")
 public interface UserMapper {
   @Mapping(target = "role", defaultValue = "UNKNOWN")
-  @Mapping(target = "token", source = "user", qualifiedByName = "generateJwtToken")
   @Mapping(target = "userPermissions", source = "role", qualifiedByName = "mapPermissions")
   UserResponse toDto(User user);
 
@@ -47,20 +43,5 @@ public interface UserMapper {
       case BUSINESS_ANALYST, PRODUCT_OWNER, SCRUM_MASTER -> Arrays.asList(UserPermissions.values());
       default -> List.of(UserPermissions.CAN_SEE_TASK_STATUSES);
     };
-  }
-
-  /**
-   * Remove this method after frontend logic refactor
-   *
-   * @param user - user whom generate token
-   * @return generated jwt token
-   */
-  @Named("generateJwtToken")
-  default String generateJwtToken(User user) {
-    return Jwt.claims()
-      .issuer(ConfigConstants.TASK_TRACKER_APP)
-      .upn(user.getUsername())
-      .groups(Objects.requireNonNullElse(user.getRole(), UserRole.UNKNOWN).name())
-      .sign();
   }
 }

@@ -1,6 +1,7 @@
 package krilovs.andrejs.app.controller;
 
 import io.quarkus.security.Authenticated;
+import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,6 +15,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import krilovs.andrejs.app.config.ConfigConstants;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.UserLoginRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
@@ -73,8 +75,21 @@ public class UserFacade {
   public Response login(@Valid UserLoginRequest request) {
     log.info("Requested for login. User: '{}'", request.username());
     UserResponse result = executor.run(LoginCommand.class, request);
-    log.info("Successfully logged in '{}' with status '{}'", result, Response.Status.OK);
-    return Response.status(Response.Status.OK).entity(result).build();
+
+    log.info("Generating jwt token for user '{}'", result.username());
+    String generatedToken = Jwt.claims()
+      .issuer(ConfigConstants.TASK_TRACKER_APP)
+      .upn(result.username())
+      .groups(result.role().name())
+      .sign();
+
+    log.info("Successfully logged in with status '{}'", Response.Status.OK);
+    return Response.status(Response.Status.OK).entity(result)
+      .header(
+        ConfigConstants.SET_COOKIE,
+        ConfigConstants.COOKIE_STRING.formatted(ConfigConstants.AUTH_TOKEN, generatedToken)
+      )
+      .build();
   }
 
   @GET
@@ -92,6 +107,8 @@ public class UserFacade {
 
     executor.run(LogoutCommand.class, username);
     log.info("Successfully logged out user '{}' with status '{}'", username, Response.Status.OK);
-    return Response.status(Response.Status.OK).build();
+    return Response.status(Response.Status.OK)
+      .header(ConfigConstants.SET_COOKIE, "")
+      .build();
   }
 }

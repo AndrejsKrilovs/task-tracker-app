@@ -41,7 +41,7 @@ import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import TaskModal from './TaskModal'
 import TaskStatusPanel from './TaskStatusPanel'
-import { hasTaskCreateAccess, extractUsername, hasTaskStatusViewAccess } from '@/utils/jwt'
+import { hasTaskCreateAccess, extractUsername, hasTaskStatusViewAccess } from '@/assets/permissions'
 
 const router = useRouter()
 const language = ref('en')
