@@ -1,5 +1,6 @@
 package krilovs.andrejs.app.controller;
 
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,8 +29,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-
-import java.util.Map;
 
 @Slf4j
 @ApplicationScoped
@@ -73,14 +72,13 @@ public class UserFacade {
   })
   public Response login(@Valid UserLoginRequest request) {
     log.info("Requested for login. User: '{}'", request.username());
-    String result = executor.run(LoginCommand.class, request);
-    log.info("Successfully logged in '{}' with status '{}'", request.username(), Response.Status.OK);
-
-    return Response.status(Response.Status.OK).entity(Map.of("token", result)).build();
+    UserResponse result = executor.run(LoginCommand.class, request);
+    log.info("Successfully logged in '{}' with status '{}'", result, Response.Status.OK);
+    return Response.status(Response.Status.OK).entity(result).build();
   }
 
   @GET
-  @PermitAll
+  @Authenticated
   @Path("/logout")
   @Operation(summary = "User logout", description = "Logging out from system")
   @APIResponses(value = {

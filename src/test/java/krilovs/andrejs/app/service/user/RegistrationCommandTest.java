@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import krilovs.andrejs.app.dto.UserPermissions;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.entity.User;
@@ -23,8 +24,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,9 +69,9 @@ class RegistrationCommandTest {
     UserRole role = (roleString == null || roleString.isBlank()) ? null : UserRole.valueOf(roleString);
     UserRegistrationRequest request = new UserRegistrationRequest(username, password, email, role);
 
-    Mockito.when(userRepository.findUserByUsername("username")).thenReturn(Optional.empty());
-    Mockito.when(userMapper.toEntity(request)).thenReturn(userEntity);
-    Mockito.when(passwordService.hashPassword("password")).thenReturn("hashedPassword");
+    Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.empty());
+    Mockito.when(userMapper.toEntity(Mockito.any())).thenReturn(userEntity);
+    Mockito.when(passwordService.hashPassword(Mockito.any())).thenReturn("hashedPassword");
     Mockito.when(userMapper.toDto(Mockito.any())).thenAnswer(invocation -> {
       User user = invocation.getArgument(0);
       return new UserResponse(
@@ -76,7 +79,9 @@ class RegistrationCommandTest {
         user.getEmail(),
         user.getRole(),
         user.getCreatedAt(),
-        user.getLastVisitAt()
+        user.getLastVisitAt(),
+        List.of(UserPermissions.CAN_SEE_TASK_STATUSES),
+        UUID.randomUUID().toString()
       );
     });
 
@@ -86,6 +91,7 @@ class RegistrationCommandTest {
     Assertions.assertEquals("some@test.email", response.email());
     Assertions.assertNotNull(response.role());
     Assertions.assertNotNull(response.createdAt());
+    Assertions.assertFalse(response.userPermissions().isEmpty());
 
     Mockito.verify(userRepository).persistUser(userEntity);
     Assertions.assertEquals("hashedPassword", userEntity.getPassword());

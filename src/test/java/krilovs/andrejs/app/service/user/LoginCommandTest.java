@@ -5,8 +5,11 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import krilovs.andrejs.app.dto.UserLoginRequest;
+import krilovs.andrejs.app.dto.UserPermissions;
+import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.entity.UserRole;
+import krilovs.andrejs.app.mapper.user.UserMapper;
 import krilovs.andrejs.app.repository.UserRepository;
 import krilovs.andrejs.app.service.PasswordService;
 import org.junit.jupiter.api.Assertions;
@@ -21,8 +24,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +40,9 @@ class LoginCommandTest {
 
   @Mock
   PasswordService passwordService;
+
+  @Mock
+  UserMapper userMapper;
 
   User userEntity;
   Validator validator;
@@ -57,10 +65,21 @@ class LoginCommandTest {
 
     Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.of(userEntity));
     Mockito.when(passwordService.verifyPassword(Mockito.any(), Mockito.any())).thenReturn(Boolean.TRUE);
+    Mockito.when(userMapper.toDto(Mockito.any())).thenAnswer(invocation -> {
+      User user = invocation.getArgument(0);
+      return new UserResponse(
+        user.getUsername(),
+        user.getEmail(),
+        user.getRole(),
+        user.getCreatedAt(),
+        user.getLastVisitAt(),
+        List.of(UserPermissions.CAN_SEE_TASK_STATUSES),
+        UUID.randomUUID().toString()
+      );
+    });
 
-    String result = loginCommand.execute(loginRequest);
+    UserResponse result = loginCommand.execute(loginRequest);
     Assertions.assertNotNull(result);
-    Assertions.assertFalse(result.isBlank());
   }
 
   @ParameterizedTest(name = "username={0}, password={1}")
@@ -69,8 +88,8 @@ class LoginCommandTest {
     UserLoginRequest loginRequest = new UserLoginRequest(username, password);
     Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.empty());
 
-    UserUnauthorizedException exception = Assertions.assertThrows(
-      UserUnauthorizedException.class, () -> loginCommand.execute(loginRequest)
+    UserException exception = Assertions.assertThrows(
+      UserException.class, () -> loginCommand.execute(loginRequest)
     );
     Assertions.assertTrue(exception.getMessage().contains("not exist"));
   }
