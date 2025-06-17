@@ -69,7 +69,9 @@ class LoginCommandTest {
     UserLoginRequest loginRequest = new UserLoginRequest(username, password);
     Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.empty());
 
-    UserUnauthorizedException exception = Assertions.assertThrows(UserUnauthorizedException.class, () -> loginCommand.execute(loginRequest));
+    UserUnauthorizedException exception = Assertions.assertThrows(
+      UserUnauthorizedException.class, () -> loginCommand.execute(loginRequest)
+    );
     Assertions.assertTrue(exception.getMessage().contains("not exist"));
   }
 

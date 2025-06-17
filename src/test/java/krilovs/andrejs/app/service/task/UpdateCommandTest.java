@@ -1,35 +1,7 @@
 package krilovs.andrejs.app.service.task;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
-import krilovs.andrejs.app.dto.TaskResponse;
-import krilovs.andrejs.app.entity.Task;
-import krilovs.andrejs.app.entity.TaskStatus;
-import krilovs.andrejs.app.entity.User;
-import krilovs.andrejs.app.entity.UserRole;
-import krilovs.andrejs.app.mapper.task.TaskMapper;
-import krilovs.andrejs.app.repository.TaskRepository;
-import krilovs.andrejs.app.repository.UserRepository;
-import krilovs.andrejs.app.service.user.UserUnauthorizedException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateCommandTest {

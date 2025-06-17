@@ -76,10 +76,10 @@ const fieldError = reactive<{ [key: string]: string }>({})
 const taskStatusesFromApi = ref<string[]>([])
 
 const form = reactive({
-  id: task.id || null,
-  title: task.title || null,
-  status: task.status || null,
-  description: task.description || null
+  id: task.id || '',
+  title: task.title || '',
+  status: task.status || '',
+  description: task.description || ''
 })
 
 onMounted(async () => {
