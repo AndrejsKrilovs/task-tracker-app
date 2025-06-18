@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { Task } from '@/assets/types'
-import { hasTaskUpdateAccess, hasTaskCreateAccess } from '@/assets/permissions'
+import { hasTaskUpdateAccess, hasTaskCreateAccess } from '@/api/axios'
 import { reactive, ref, onMounted, computed } from 'vue'
 import apiClient from '@/api/axios'
 

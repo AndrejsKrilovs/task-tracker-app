@@ -38,6 +38,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
+import { useUserStore } from '@/assets/store'
 
 const errorMessage = ref<string | null>(null)
 const fieldErrors = reactive<{ [key: string]: string }>({})
@@ -58,6 +59,8 @@ async function handleLogin() {
     })
 
     localStorage.setItem('isAuthenticated', 'true')
+    const userStore = useUserStore()
+    userStore.setUser(data)
     router.push('/tasks')
   }
   catch (exception: any) {

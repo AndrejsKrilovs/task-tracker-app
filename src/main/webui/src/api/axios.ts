@@ -8,4 +8,12 @@ const apiClient = axios.create({
   }
 })
 
+export function hasTaskCreateAccess(): boolean {
+  return true
+}
+
+export function hasTaskUpdateAccess(): boolean {
+  return true
+}
+
 export default apiClient
