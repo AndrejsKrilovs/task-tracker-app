@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.entity.UserRole;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,12 @@ class UserRegistrationTest {
     entityManager.createNativeQuery("delete from test.user_table").executeUpdate();
     String sql = "insert into test.user_table (ut_username, ut_password) values ('username', 'hashedPwd')";
     entityManager.createNativeQuery(sql).executeUpdate();
+  }
+
+  @AfterEach
+  @Transactional
+  void tearDown() {
+    entityManager.createNativeQuery("delete from test.user_table").executeUpdate();
   }
 
   @Test

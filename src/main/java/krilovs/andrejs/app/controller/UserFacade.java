@@ -68,9 +68,11 @@ public class UserFacade {
   @Path("/login")
   @Operation(summary = "User authentication", description = "Authentication user with provided credentials")
   @APIResponses(value = {
-    @APIResponse(responseCode = "200", description = "Generated jwt token",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
-    @APIResponse(responseCode = "401", description = "Authorization failed, incorrect credentials",
+    @APIResponse(responseCode = "200", description = "User logged in successfully",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+    @APIResponse(responseCode = "400", description = "Incorrect user credentials",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+    @APIResponse(responseCode = "409", description = "Authorization failed, incorrect credentials",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
   })
   public Response login(@Valid UserLoginRequest request) {
