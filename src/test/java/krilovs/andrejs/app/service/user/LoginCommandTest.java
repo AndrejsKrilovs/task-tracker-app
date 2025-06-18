@@ -5,7 +5,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import krilovs.andrejs.app.dto.UserLoginRequest;
-import krilovs.andrejs.app.dto.UserPermissions;
 import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.entity.UserRole;
@@ -72,7 +71,7 @@ class LoginCommandTest {
         user.getRole(),
         user.getCreatedAt(),
         user.getLastVisitAt(),
-        List.of(UserPermissions.CAN_SEE_TASK_STATUSES)
+        List.of()
       );
     });
 

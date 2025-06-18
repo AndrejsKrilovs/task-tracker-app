@@ -12,6 +12,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
@@ -86,8 +87,8 @@ public class UserFacade {
     log.info("Successfully logged in with status '{}'", Response.Status.OK);
     return Response.status(Response.Status.OK).entity(result)
       .header(
-        ConfigConstants.SET_COOKIE,
-        ConfigConstants.COOKIE_STRING.formatted(ConfigConstants.AUTH_TOKEN, generatedToken)
+        HttpHeaders.SET_COOKIE,
+        ConfigConstants.COOKIE_STRING_AFTER_LOGIN.formatted(ConfigConstants.AUTH_TOKEN, generatedToken)
       )
       .build();
   }
@@ -108,7 +109,10 @@ public class UserFacade {
     executor.run(LogoutCommand.class, username);
     log.info("Successfully logged out user '{}' with status '{}'", username, Response.Status.OK);
     return Response.status(Response.Status.OK)
-      .header(ConfigConstants.SET_COOKIE, "")
+      .header(
+        HttpHeaders.SET_COOKIE,
+        ConfigConstants.COOKIE_STRING_BEFORE_LOGOUT.formatted(ConfigConstants.AUTH_TOKEN)
+      )
       .build();
   }
 }
