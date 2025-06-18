@@ -65,17 +65,21 @@
 
 <script setup lang="ts">
 import { Task } from '@/assets/types'
-import { hasTaskUpdateAccess, hasTaskCreateAccess } from '@/api/axios'
+import { useUserStore } from '@/assets/store'
 import { reactive, ref, onMounted, computed } from 'vue'
 import apiClient from '@/api/axios'
 
 const emit = defineEmits<{ cancel: void; submitted: void }>()
 const props = defineProps<{ task: Task | {} }>()
 
+const userStore = useUserStore()
 const task = props.task as Task
 const isUpdate = computed(() => !!task.id)
+const canAddUpdateTask = computed(() => {
+  const permissions = userStore.user?.userPermissions
+  return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
+})
 
-const canAddUpdateTask = ref(false)
 const fieldError = reactive<{ [key: string]: string }>({})
 const taskStatusesFromApi = ref<string[]>([])
 
@@ -87,7 +91,6 @@ const form = reactive({
 })
 
 onMounted(async () => {
-  canAddUpdateTask.value = hasTaskUpdateAccess() || hasTaskCreateAccess()
   if (task.status) {
     const { data } = await apiClient.get(`/tasks/statusesToChange/${task.status}`)
     taskStatusesFromApi.value = [task.status, ...data.statuses]

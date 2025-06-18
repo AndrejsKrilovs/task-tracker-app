@@ -45,15 +45,18 @@ import apiClient from '@/api/axios'
 import TaskModal from './TaskModal'
 import TaskStatusPanel from './TaskStatusPanel'
 import { useUserStore } from '@/assets/store'
-import { hasTaskCreateAccess } from '@/api/axios'
 
 const router = useRouter()
 const language = ref('en')
-const canCreateTask = ref(false)
 const userStore = useUserStore()
 const showCreateForm = ref(false)
 const availableStatuses = ref<string[]>([])
+
 const user = computed(() => userStore.user?.username ?? 'Guest')
+const canCreateTask = computed(() => {
+  const permissions = userStore.user?.userPermissions
+  return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
+})
 
 const statusDescriptions: Record<string, string> = {
   READY_FOR_DEVELOPMENT: 'Ready for development tasks',
@@ -66,8 +69,6 @@ const statusDescriptions: Record<string, string> = {
 }
 
 onMounted(async () => {
-  canCreateTask.value = hasTaskCreateAccess()
-
   try {
     const { data } = await apiClient.get('/tasks/statuses')
     availableStatuses.value = data.statuses
