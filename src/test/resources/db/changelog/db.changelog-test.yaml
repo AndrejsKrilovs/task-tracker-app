@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-database-test-tables
+      author: Andrejs Krilovs
+      changes:
+        - sqlFile:
+            path: db/sql/001-create-database-tables.sql
+            relativeToChangelogFile: false

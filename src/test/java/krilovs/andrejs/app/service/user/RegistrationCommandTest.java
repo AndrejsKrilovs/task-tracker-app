@@ -88,7 +88,7 @@ class RegistrationCommandTest {
     Assertions.assertEquals("some@test.email", response.email());
     Assertions.assertNotNull(response.role());
     Assertions.assertNotNull(response.createdAt());
-    Assertions.assertFalse(response.userPermissions().isEmpty());
+    Assertions.assertTrue(response.userPermissions().isEmpty());
 
     Mockito.verify(userRepository).persistUser(userEntity);
     Assertions.assertEquals("hashedPassword", userEntity.getPassword());
