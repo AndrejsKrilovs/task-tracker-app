@@ -6,3 +6,12 @@ export interface Task {
   createdAt: string
   user: string
 }
+
+export interface User {
+  createdAt: string
+  email: string
+  lastVisitAt: string
+  role: string
+  userPermissions: string[]
+  username: string
+}

@@ -24,33 +24,39 @@
 
       <h1 class="main-title">Task board</h1>
       <TaskStatusPanel
-        v-if="canShowTaskStatuses"
+        v-if="availableStatuses.length > 0"
         v-for="status in availableStatuses"
         :key="status"
         :status="status"
         :statusValue="statusDescriptions[status] || status"
       />
-      <p v-else class="subtitle"> {{ unauthorizedUserMessage }} </p>
+      <p v-else class="subtitle">
+        No available tasks show for user with undefined role. <br/>
+        Please contact Business analyst, Product owner or Scrum master
+      </p>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import apiClient from '@/api/axios'
 import TaskModal from './TaskModal'
 import TaskStatusPanel from './TaskStatusPanel'
-import { hasTaskCreateAccess, extractUsername, hasTaskStatusViewAccess } from '@/utils/jwt'
+import { useUserStore } from '@/assets/store'
 
 const router = useRouter()
 const language = ref('en')
-const canCreateTask = ref(false)
+const userStore = useUserStore()
 const showCreateForm = ref(false)
-const user = ref<string | null>(null)
-const canShowTaskStatuses = ref(false)
 const availableStatuses = ref<string[]>([])
-const unauthorizedUserMessage = ref<string>('')
+
+const user = computed(() => userStore.user?.username ?? 'Guest')
+const canCreateTask = computed(() => {
+  const permissions = userStore.user?.userPermissions
+  return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
+})
 
 const statusDescriptions: Record<string, string> = {
   READY_FOR_DEVELOPMENT: 'Ready for development tasks',
@@ -63,22 +69,13 @@ const statusDescriptions: Record<string, string> = {
 }
 
 onMounted(async () => {
-  user.value = extractUsername()
-  canCreateTask.value = hasTaskCreateAccess()
-  canShowTaskStatuses.value = hasTaskStatusViewAccess()
-
   try {
-    const response = await apiClient.get('/tasks/statuses')
-    if (response.status === 200) {
-      availableStatuses.value = response.data.statuses
-    }
+    const { data } = await apiClient.get('/tasks/statuses')
+    availableStatuses.value = data.statuses
   }
   catch(exception: any) {
     if (exception.response.status === 403) {
-      unauthorizedUserMessage.value = `
-        No available tasks show for user with undefined role.
-        Please contact Business analyst, Product owner or Scrum master
-      `
+      availableStatuses.value = []
     }
   }
 
@@ -88,6 +85,7 @@ onMounted(async () => {
 async function logout() {
   const response = await apiClient.get('/users/logout')
   if (response.status === 200) {
+    userStore.clearUser()
     router.push('/logout')
   }
 }

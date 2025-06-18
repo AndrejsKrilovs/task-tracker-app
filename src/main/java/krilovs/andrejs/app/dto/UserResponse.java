@@ -4,6 +4,7 @@ import krilovs.andrejs.app.entity.UserRole;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "User response. User response for register in our system")
 public record UserResponse(
@@ -48,7 +49,13 @@ public record UserResponse(
     title = "Date when user last logged in",
     description = "Date when user last logged in"
   )
-  LocalDateTime lastVisitAt
-) {
+  LocalDateTime lastVisitAt,
 
+  @Schema(
+    readOnly = true,
+    title = "User permissions",
+    description = "Shows what user allow in out system"
+  )
+  List<UserPermissions> userPermissions
+) {
 }

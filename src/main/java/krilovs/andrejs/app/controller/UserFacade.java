@@ -1,5 +1,7 @@
 package krilovs.andrejs.app.controller;
 
+import io.quarkus.security.Authenticated;
+import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,9 +12,11 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import krilovs.andrejs.app.config.ConfigConstants;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.UserLoginRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
@@ -28,8 +32,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-
-import java.util.Map;
 
 @Slf4j
 @ApplicationScoped
@@ -73,14 +75,26 @@ public class UserFacade {
   })
   public Response login(@Valid UserLoginRequest request) {
     log.info("Requested for login. User: '{}'", request.username());
-    String result = executor.run(LoginCommand.class, request);
-    log.info("Successfully logged in '{}' with status '{}'", request.username(), Response.Status.OK);
+    UserResponse result = executor.run(LoginCommand.class, request);
 
-    return Response.status(Response.Status.OK).entity(Map.of("token", result)).build();
+    log.info("Generating jwt token for user '{}'", result.username());
+    String generatedToken = Jwt.claims()
+      .issuer(ConfigConstants.TASK_TRACKER_APP)
+      .upn(result.username())
+      .groups(result.role().name())
+      .sign();
+
+    log.info("Successfully logged in with status '{}'", Response.Status.OK);
+    return Response.status(Response.Status.OK).entity(result)
+      .header(
+        HttpHeaders.SET_COOKIE,
+        ConfigConstants.COOKIE_STRING_AFTER_LOGIN.formatted(ConfigConstants.AUTH_TOKEN, generatedToken)
+      )
+      .build();
   }
 
   @GET
-  @PermitAll
+  @Authenticated
   @Path("/logout")
   @Operation(summary = "User logout", description = "Logging out from system")
   @APIResponses(value = {
@@ -94,6 +108,11 @@ public class UserFacade {
 
     executor.run(LogoutCommand.class, username);
     log.info("Successfully logged out user '{}' with status '{}'", username, Response.Status.OK);
-    return Response.status(Response.Status.OK).build();
+    return Response.status(Response.Status.OK)
+      .header(
+        HttpHeaders.SET_COOKIE,
+        ConfigConstants.COOKIE_STRING_BEFORE_LOGOUT.formatted(ConfigConstants.AUTH_TOKEN)
+      )
+      .build();
   }
 }

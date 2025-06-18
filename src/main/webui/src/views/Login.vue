@@ -38,6 +38,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
+import { useUserStore } from '@/assets/store'
 
 const errorMessage = ref<string | null>(null)
 const fieldErrors = reactive<{ [key: string]: string }>({})
@@ -52,16 +53,15 @@ async function handleLogin() {
   Object.keys(fieldErrors).forEach(key => delete fieldErrors[key])
 
   try {
-    const response = await apiClient.post('/users/login', {
+    const { data } = await apiClient.post('/users/login', {
       username: form.username,
       password: form.password
     })
 
-    if (response.status === 200) {
-      localStorage.setItem('isAuthenticated', 'true')
-      localStorage.setItem('loginResponse', JSON.stringify(response.data))
-      router.push('/tasks')
-    }
+    localStorage.setItem('isAuthenticated', 'true')
+    const userStore = useUserStore()
+    userStore.setUser(data)
+    router.push('/tasks')
   }
   catch (exception: any) {
     if (exception.response.status === 401) {

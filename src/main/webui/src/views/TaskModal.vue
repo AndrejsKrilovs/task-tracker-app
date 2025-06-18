@@ -10,7 +10,7 @@
             id="title"
             v-model="form.title"
             type="text"
-            :disabled="!canUpdateTask"
+            :disabled="!canAddUpdateTask"
             placeholder="Enter task title"
           />
           <p v-if="fieldError.title" class="field-error">
@@ -41,7 +41,7 @@
             id="description"
             v-model="form.description"
             rows="5"
-            :disabled="!canUpdateTask"
+            :disabled="!canAddUpdateTask"
             placeholder="Enter task details"
           />
         </div>
@@ -64,18 +64,22 @@
 </template>
 
 <script setup lang="ts">
-import { Task } from '@/api/types'
-import { hasTaskUpdateAccess } from '@/utils/jwt'
+import { Task } from '@/assets/types'
+import { useUserStore } from '@/assets/store'
 import { reactive, ref, onMounted, computed } from 'vue'
 import apiClient from '@/api/axios'
 
 const emit = defineEmits<{ cancel: void; submitted: void }>()
 const props = defineProps<{ task: Task | {} }>()
 
+const userStore = useUserStore()
 const task = props.task as Task
 const isUpdate = computed(() => !!task.id)
+const canAddUpdateTask = computed(() => {
+  const permissions = userStore.user?.userPermissions
+  return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
+})
 
-const canUpdateTask = ref(false)
 const fieldError = reactive<{ [key: string]: string }>({})
 const taskStatusesFromApi = ref<string[]>([])
 
@@ -88,7 +92,6 @@ const form = reactive({
 
 onMounted(async () => {
   if (task.status) {
-    canUpdateTask.value = hasTaskUpdateAccess()
     const { data } = await apiClient.get(`/tasks/statusesToChange/${task.status}`)
     taskStatusesFromApi.value = [task.status, ...data.statuses]
   }
