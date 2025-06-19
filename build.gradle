@@ -1,7 +1,10 @@
+import com.github.gradle.node.npm.task.NpmTask
+
 plugins {
     id 'java'
     id 'jacoco'
     id 'io.quarkus'
+    id 'com.github.node-gradle.node' version '7.0.2'
 }
 
 repositories {
@@ -36,16 +39,13 @@ dependencies {
 }
 
 group 'krilovs.andrejs.app'
-version '1.1'
+version '2.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-test {
-    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
-}
 compileJava {
     options.encoding = 'UTF-8'
     options.compilerArgs << '-parameters'
@@ -53,4 +53,42 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+}
+
+node {
+    version = '22.16.0'
+    download = true
+    nodeProjectDir = file("src/main/webui")
+}
+
+def frontendDir = file("src/main/webui")
+
+tasks.register("npmBuild", NpmTask) {
+    dependsOn tasks.npmInstall
+    args = ['run', 'build']
+    inputs.dir("$frontendDir/src")
+    outputs.dir("$frontendDir/dist")
+}
+
+tasks.named("build") {
+    dependsOn "npmBuild"
 }

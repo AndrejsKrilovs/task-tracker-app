@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite",
-    "preview": "vite"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",

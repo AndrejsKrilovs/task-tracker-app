@@ -46,3 +46,4 @@ nb-configuration.xml
 # Frontend
 /src/main/webui/node_modules
 .quinoa
+/src/main/webui/dist
