@@ -101,8 +101,7 @@ public class UserFacade {
   @Operation(summary = "User logout", description = "Logging out from system")
   @APIResponses(value = {
     @APIResponse(responseCode = "200", description = "User logged out from system"),
-    @APIResponse(responseCode = "409", description = "User is not active",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+    @APIResponse(responseCode = "401", description = "Unauthorized user")
   })
   public Response logout(@Context SecurityContext securityContext) {
     String username = securityContext.getUserPrincipal().getName();
