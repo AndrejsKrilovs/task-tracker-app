@@ -1,54 +1,91 @@
-# task-tracker-app
+# 📋 Task Tracker App
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+This is a **full-stack task tracking application** built with [Quarkus](https://quarkus.io/) — the Supersonic Subatomic
+Java Framework.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+> ✨ It includes REST API, frontend (Vite + Vue 3 + TypeScript), JWT-based authentication, PostgreSQL integration, and
+> Swagger
+> documentation.
 
-## Running the application in dev mode
+---
 
-You can run your application in dev mode that enables live coding using:
+## 🚀 Getting Started
 
-```shell script
-./gradlew quarkusDev
+### 🔧 Prerequisites
+
+- [Java 21+](https://jdk.java.net/)
+- [Docker](https://www.docker.com/)
+- [Node.js (auto-installed via Gradle plugin)](https://nodejs.org/)
+- Git (optional)
+
+---
+
+## 📦 Build & Run the App
+
+You can start the entire app with one command — no manual DB or server setup needed!
+
+### ▶️ Windows
+
+```
+start-app.bat
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+### ▶️ Linux / macOS
 
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./gradlew build
+```
+chmod +x start-app.sh stop-app.sh
+./start-app.sh
 ```
 
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
+✅ This will:
 
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
+- Build backend & frontend
+- Run PostgreSQL + App containers using Docker Compose
+- Apply DB migrations via Liquibase
 
-If you want to build an _über-jar_, execute the following command:
+---
 
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
+## 🔍 Available Endpoints
+
+| Feature       | URL                                  |
+|---------------|--------------------------------------|
+| 🌐 App        | `http://localhost:8080/`             |
+| 🔐 Login Page | `http://localhost:8080/quinoa/login` |
+| 📘 Swagger    | `http://localhost:8080/swagger-ui/`  |
+
+---
+
+## 🛑 Stop the App
+
+### Windows
+
+```
+stop-app.bat
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
+### Linux / macOS
 
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
+```
+./stop-app.sh
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+---
 
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
+## 💡 Technologies Used
 
-You can then execute your native executable with: `./build/task-tracker-app-1.0.0-SNAPSHOT-runner`
+- **Backend**: Quarkus, Hibernate, Liquibase, JWT
+- **Frontend**: Vite, Vue 3, TypeScript, CSS
+- **Database**: PostgreSQL
+- **Tests**: JUnit 5, RestAssured, Mockito
+- **CI/Build**: Gradle, Jacoco, Docker
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
+---
+
+## 🤝 Author
+
+Made with ❤️ by **Andrejs Krilovs**  
+Happy usage and contributions welcome!
+
+📬 Contact me:
+- Telegram: [@andrejs_krilovs](https://t.me/andrejs_krilovs)
+- WhatsApp: [+371 24770033](https://wa.me/37124770033)
