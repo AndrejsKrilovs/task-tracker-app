@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Slf4j
 @RequestScoped
-public class ShowAvailableTaskStatusesToChangeCommand implements ServiceCommand<TaskStatus, TaskStatusResponse> {
+public class ShowTaskStatusesToChangeCommand implements ServiceCommand<TaskStatus, TaskStatusResponse> {
   private static final Map<TaskStatus, List<TaskStatus>> AVAILABLE_TASK_STATUSES = Map.of(
     TaskStatus.READY_FOR_DEVELOPMENT, List.of(TaskStatus.IN_DEVELOPMENT),
     TaskStatus.IN_DEVELOPMENT, List.of(TaskStatus.CODE_REVIEW),

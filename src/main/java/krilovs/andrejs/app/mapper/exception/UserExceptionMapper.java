@@ -1,4 +1,4 @@
-package krilovs.andrejs.app.mapper.task;
+package krilovs.andrejs.app.mapper.exception;
 
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -6,7 +6,7 @@ import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import krilovs.andrejs.app.dto.ExceptionResponse;
-import krilovs.andrejs.app.service.task.TaskException;
+import krilovs.andrejs.app.service.user.UserException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
@@ -14,12 +14,12 @@ import java.time.LocalDateTime;
 
 @Provider
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TaskExceptionMapper implements ExceptionMapper<TaskException> {
+public class UserExceptionMapper implements ExceptionMapper<UserException> {
   @Context
   UriInfo uriInfo;
 
   @Override
-  public Response toResponse(TaskException exception) {
+  public Response toResponse(UserException exception) {
     ExceptionResponse exceptionResponse = new ExceptionResponse(
       Response.Status.CONFLICT,
       LocalDateTime.now(),

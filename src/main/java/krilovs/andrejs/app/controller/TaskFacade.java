@@ -28,7 +28,7 @@ import krilovs.andrejs.app.mapper.task.TaskStatusDeserializer;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.task.CreateCommand;
 import krilovs.andrejs.app.service.task.FindCommand;
-import krilovs.andrejs.app.service.task.ShowAvailableTaskStatusesToChangeCommand;
+import krilovs.andrejs.app.service.task.ShowTaskStatusesToChangeCommand;
 import krilovs.andrejs.app.service.task.ShowUserAvailableTaskStatusesCommand;
 import krilovs.andrejs.app.service.task.UpdateCommand;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +126,7 @@ public class TaskFacade {
                                          @JsonDeserialize(using = TaskStatusDeserializer.class)
                                          TaskStatus previousTaskStatus) {
     log.info("Requested to show available statuses for change from '{}'", previousTaskStatus);
-    TaskStatusResponse response = executor.run(ShowAvailableTaskStatusesToChangeCommand.class, previousTaskStatus);
+    TaskStatusResponse response = executor.run(ShowTaskStatusesToChangeCommand.class, previousTaskStatus);
     log.info("Successfully shown available statuses for change. Operation status '{}'", Response.Status.OK);
     return Response.ok(response).build();
   }
@@ -140,9 +140,7 @@ public class TaskFacade {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskResponse.class))),
     @APIResponse(responseCode = "400", description = "Incorrect task credentials",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to update task"),
-    @APIResponse(responseCode = "409", description = "User role not allowed to update tasks",
-      content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to update task")
   })
   public Response updateTask(@Context SecurityContext securityContext,
                              @PathParam("taskId") Long taskId,

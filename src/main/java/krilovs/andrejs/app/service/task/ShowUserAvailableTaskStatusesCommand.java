@@ -5,9 +5,9 @@ import jakarta.inject.Inject;
 import krilovs.andrejs.app.dto.TaskStatusResponse;
 import krilovs.andrejs.app.entity.TaskStatus;
 import krilovs.andrejs.app.entity.UserRole;
+import krilovs.andrejs.app.service.JwtService;
 import krilovs.andrejs.app.service.ServiceCommand;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestScoped
 public class ShowUserAvailableTaskStatusesCommand implements ServiceCommand<Void, TaskStatusResponse> {
   @Inject
-  JsonWebToken jsonWebToken;
+  JwtService jwtService;
 
   private static final Map<UserRole, List<TaskStatus>> ROLE_STATUSES = Map.of(
     UserRole.PRODUCT_OWNER, Arrays.asList(TaskStatus.values()),
@@ -41,7 +41,7 @@ public class ShowUserAvailableTaskStatusesCommand implements ServiceCommand<Void
 
   @Override
   public TaskStatusResponse execute(Void input) {
-    UserRole userRole = jsonWebToken.getGroups()
+    UserRole userRole = jwtService.getGroups()
       .stream()
       .map(UserRole::valueOf)
       .findFirst()
@@ -49,7 +49,6 @@ public class ShowUserAvailableTaskStatusesCommand implements ServiceCommand<Void
 
     List<TaskStatus> taskRoles = ROLE_STATUSES.getOrDefault(userRole, List.of())
       .stream()
-      .filter(role -> role != TaskStatus.UNKNOWN)
       .toList();
     log.info("Selected '{}' statuses", taskRoles);
     return new TaskStatusResponse(taskRoles);
