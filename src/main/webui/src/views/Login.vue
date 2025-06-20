@@ -64,7 +64,7 @@ async function handleLogin() {
     router.push('/tasks')
   }
   catch (exception: any) {
-    if (exception.response.status === 401) {
+    if (exception.response.status === 409) {
       errorMessage.value = exception.response.data.message
     }
 

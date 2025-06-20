@@ -71,7 +71,7 @@ const statusDescriptions: Record<string, string> = {
 onMounted(async () => {
   try {
     const { data } = await apiClient.get('/tasks/statuses')
-    availableStatuses.value = data.statuses
+    availableStatuses.value = data.statuses.filter((status: string) => status !== 'UNKNOWN')
   }
   catch(exception: any) {
     if (exception.response.status === 403) {
