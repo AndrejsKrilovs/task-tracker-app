@@ -1,4 +1,4 @@
-package krilovs.andrejs.app.mapper.user;
+package krilovs.andrejs.app.mapper.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Context;

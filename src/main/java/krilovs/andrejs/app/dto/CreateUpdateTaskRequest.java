@@ -8,12 +8,13 @@ import krilovs.andrejs.app.entity.TaskStatus;
 import krilovs.andrejs.app.mapper.task.TaskStatusDeserializer;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@Data
+@Getter
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Schema(description = "Request to create or update task")
@@ -47,6 +48,7 @@ public class CreateUpdateTaskRequest {
   )
   String description;
 
+  @Setter
   @JsonDeserialize(using = TaskStatusDeserializer.class)
   @Schema(
     title = "Status",
@@ -63,6 +65,7 @@ public class CreateUpdateTaskRequest {
   )
   TaskStatus status;
 
+  @Setter
   String user;
 
   public CreateUpdateTaskRequest(String title, String description) {

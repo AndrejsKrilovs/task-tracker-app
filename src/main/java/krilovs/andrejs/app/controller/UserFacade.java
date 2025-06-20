@@ -1,7 +1,6 @@
 package krilovs.andrejs.app.controller;
 
 import io.quarkus.security.Authenticated;
-import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +20,7 @@ import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.UserLoginRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
+import krilovs.andrejs.app.service.JwtService;
 import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.user.LoginCommand;
 import krilovs.andrejs.app.service.user.LogoutCommand;
@@ -43,6 +43,9 @@ public class UserFacade {
 
   @Inject
   ServiceCommandExecutor executor;
+
+  @Inject
+  JwtService jwtService;
 
   @POST
   @PermitAll
@@ -78,14 +81,7 @@ public class UserFacade {
   public Response login(@Valid UserLoginRequest request) {
     log.info("Requested for login. User: '{}'", request.username());
     UserResponse result = executor.run(LoginCommand.class, request);
-
-    log.info("Generating jwt token for user '{}'", result.username());
-    String generatedToken = Jwt.claims()
-      .issuer(ConfigConstants.TASK_TRACKER_APP)
-      .upn(result.username())
-      .groups(result.role().name())
-      .sign();
-
+    String generatedToken = jwtService.generateToken(result.username(), result.role().name());
     log.info("Successfully logged in with status '{}'", Response.Status.OK);
     return Response.status(Response.Status.OK).entity(result)
       .header(
