@@ -25,7 +25,6 @@ public class RestRequestFilter implements ContainerRequestFilter, ContainerRespo
 
     Optional.ofNullable(requestContext.getCookies().get(ConfigConstants.AUTH_TOKEN))
       .map(Cookie::getValue)
-      .filter(item -> !item.isBlank())
       .ifPresent(jwt -> requestContext.getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwt)));
 
     MDC.put("requestId", requestId);

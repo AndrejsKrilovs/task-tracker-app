@@ -74,6 +74,29 @@ jacocoTestReport {
     }
 }
 
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+
+    violationRules {
+        rule {
+            enabled = true
+            element = 'BUNDLE'
+
+            limit {
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.50
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.50
+            }
+        }
+    }
+}
+
 node {
     version = '22.16.0'
     download = true
@@ -91,4 +114,8 @@ tasks.register("npmBuild", NpmTask) {
 
 tasks.named("build") {
     dependsOn "npmBuild"
+}
+
+tasks.named("check") {
+    dependsOn jacocoTestCoverageVerification
 }

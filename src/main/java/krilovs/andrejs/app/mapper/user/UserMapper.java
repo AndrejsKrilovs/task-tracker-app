@@ -28,7 +28,7 @@ public interface UserMapper {
 
   @Named("mapRole")
   default UserRole mapRole(String roleStr) {
-    if (roleStr == null || roleStr.isBlank()) {
+    if (Objects.requireNonNullElse(roleStr, "").isBlank()) {
       return UserRole.UNKNOWN;
     }
 

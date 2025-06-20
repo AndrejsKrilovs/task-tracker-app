@@ -1,4 +1,4 @@
-package krilovs.andrejs.app.controller;
+package krilovs.andrejs.app.controller.user;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -7,6 +7,7 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import krilovs.andrejs.app.controller.UserFacade;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.entity.UserRole;
 import org.hamcrest.Matchers;

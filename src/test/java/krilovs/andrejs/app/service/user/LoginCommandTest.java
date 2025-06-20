@@ -81,9 +81,22 @@ class LoginCommandTest {
 
   @ParameterizedTest(name = "username={0}, password={1}")
   @CsvSource(value = "username,password")
-  void shouldNotLogin(String username, String password) {
+  void shouldNotLoginWithIncorrectUsername(String username, String password) {
     UserLoginRequest loginRequest = new UserLoginRequest(username, password);
     Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.empty());
+
+    UserException exception = Assertions.assertThrows(
+      UserException.class, () -> loginCommand.execute(loginRequest)
+    );
+    Assertions.assertTrue(exception.getMessage().contains("not exist"));
+  }
+
+  @ParameterizedTest(name = "username={0}, password={1}")
+  @CsvSource(value = "username,password")
+  void shouldNotLoginWithIncorrectPassword(String username, String password) {
+    UserLoginRequest loginRequest = new UserLoginRequest(username, password);
+    Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.of(userEntity));
+    Mockito.when(passwordService.verifyPassword(Mockito.any(), Mockito.any())).thenReturn(Boolean.FALSE);
 
     UserException exception = Assertions.assertThrows(
       UserException.class, () -> loginCommand.execute(loginRequest)
