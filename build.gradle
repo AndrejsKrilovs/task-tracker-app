@@ -24,6 +24,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-smallrye-jwt-build'
     implementation 'io.quarkus:quarkus-hibernate-validator'
     implementation 'io.quarkiverse.quinoa:quarkus-quinoa:2.5.4'
+    implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
 
     implementation 'org.mindrot:jbcrypt:0.4'
 

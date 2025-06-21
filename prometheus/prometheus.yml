@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  - job_name: 'task-tracker-app-job'
+    metrics_path: /q/metrics
+    static_configs:
+      - targets: [ 'task-tracker-app:8080' ]
