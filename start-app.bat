@@ -23,6 +23,17 @@ FOR /f %%i IN ('docker images %IMAGE_BASE_NAME% --format "%%repository%%:%%tag%%
 )
 
 echo Building and starting containers with version %APP_VERSION%...
-docker-compose -f "%COMPOSE_FILE%" up --build -d
+docker-compose -f "%COMPOSE_FILE%" up --build -d || exit /b
 
+:: Публикация на Docker Hub
+set "DOCKER_HUB_REPO=andrejskrilovs/%IMAGE_BASE_NAME%"
+set "IMAGE_TAG=%DOCKER_HUB_REPO%:%APP_VERSION%"
+echo Tagging image as %IMAGE_TAG%
+docker tag %IMAGE_BASE_NAME%:%APP_VERSION% %IMAGE_TAG%
+
+echo Pushing image to Docker Hub: %IMAGE_TAG%
+docker push %IMAGE_TAG%
+
+echo Done.
 endlocal
+pause

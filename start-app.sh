@@ -27,3 +27,13 @@ fi
 
 echo "Building and starting containers with version $APP_VERSION..."
 docker-compose -f "$COMPOSE_FILE" up --build -d
+
+# Тегирование и публикация образа на Docker Hub
+DOCKER_HUB_REPO="andrejskrilovs/$IMAGE_BASE_NAME"
+IMAGE_TAG="$DOCKER_HUB_REPO:$APP_VERSION"
+echo "Tagging image as $IMAGE_TAG"
+docker tag "$IMAGE_BASE_NAME:$APP_VERSION" "$IMAGE_TAG"
+
+echo "Pushing image to Docker Hub ($IMAGE_TAG)..."
+docker push "$IMAGE_TAG"
+echo "Docker image $IMAGE_TAG published to Docker Hub."
