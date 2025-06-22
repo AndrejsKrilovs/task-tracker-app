@@ -18,7 +18,7 @@ services:
       - "5432:5432"
 
   pgAdmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:9.4.0
     container_name: pg_adm_container
     restart: always
     environment:
@@ -30,7 +30,7 @@ services:
       - db
 
   task-tracker-app:
-    image: task-tracker-app
+    image: task-tracker-app:3.0
     build:
       context: ..
       dockerfile: docker/Dockerfile.jvm
@@ -43,10 +43,11 @@ services:
       QUARKUS_DATASOURCE_USERNAME: postgres
       QUARKUS_DATASOURCE_PASSWORD: postgres
       QUARKUS_HTTP_PORT: 8080
+      APP_VERSION: 3.0
     ports:
       - "8080:8080"
     volumes:
-      - app-volumes:/app/build
+      - app-volumes:/app:rw
     command: [ "java", "-jar", "/app/build/quarkus-app/quarkus-run.jar" ]
 
 volumes:
