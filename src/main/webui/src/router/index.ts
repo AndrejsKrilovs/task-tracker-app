@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Register from '@/views/Register'
 import Login from '@/views/Login'
 import TaskTracker from '@/views/TaskTracker'
+import { useUserStore } from '@/assets/store'
 
 const routes = [
   {
@@ -30,8 +31,6 @@ const routes = [
     path: '/logout',
     name: 'Logout',
     beforeEnter: (to, from, next) => {
-      localStorage.removeItem('isAuthenticated')
-      localStorage.removeItem('loginResponse')
       next('/login')
     }
   },
@@ -47,13 +46,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true'
+  const userStore = useUserStore()
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
     return next('/login')
   }
 
-  if (to.meta.requiresGuest && isAuthenticated) {
+  if (to.meta.requiresGuest && userStore.isAuthenticated) {
     return next('/tasks')
   }
 

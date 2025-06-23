@@ -58,9 +58,9 @@ async function handleLogin() {
       password: form.password
     })
 
-    localStorage.setItem('isAuthenticated', 'true')
     const userStore = useUserStore()
     userStore.setUser(data)
+    userStore.authenticated()
     router.push('/tasks')
   }
   catch (exception: any) {
