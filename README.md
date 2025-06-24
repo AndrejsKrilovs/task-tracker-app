@@ -22,7 +22,17 @@ Java Framework.
 
 ## 📦 Build & Run the App
 
-You can start the entire app with one command — no manual DB or server setup needed!
+🛠️ Before running `start-app`, configure a `.env` file in the project root with the following variables:
+
+```
+QUARKUS_DATASOURCE_DB_NAME=<database name what you want>
+QUARKUS_DATASOURCE_USERNAME=<your imagine user>
+QUARKUS_DATASOURCE_PASSWORD=<your imagine password>
+QUARKUS_HTTP_PORT=8080 #Better stay as it is
+APP_VERSION=<build verision what you want>
+```
+
+Now you can start the entire app with one command — no manual DB or server setup needed!
 
 ### ▶️ Windows
 
@@ -47,11 +57,12 @@ chmod +x start-app.sh stop-app.sh
 
 ## 🔍 Available Endpoints
 
-| Feature       | URL                                  |
-|---------------|--------------------------------------|
-| 🌐 App        | `http://localhost:8080/`             |
-| 🔐 Login Page | `http://localhost:8080/quinoa/login` |
-| 📘 Swagger    | `http://localhost:8080/swagger-ui/`  |
+| Feature        | URL                                                                      |
+|----------------|--------------------------------------------------------------------------|
+| 🌐 App         | `http://localhost:8080/`                                                 |
+| 🔐 Login Page  | `http://localhost:8080/quinoa/login`                                     |
+| 📘 Swagger     | `http://localhost:8080/swagger-ui/`                                      |
+| 🛠️ DB console | `http://localhost:8888/` (see credentials in docker/docker-compose.yaml) |
 
 ---
 
@@ -74,7 +85,7 @@ stop-app.bat
 ## 💡 Technologies Used
 
 - **Backend**: Quarkus, Hibernate, Liquibase, JWT
-- **Frontend**: Vite, Vue 3, TypeScript, CSS
+- **Frontend**: Vite, Vue 3, Pinia, TypeScript, CSS
 - **Database**: PostgreSQL
 - **Tests**: JUnit 5, RestAssured, Mockito
 - **CI/Build**: Gradle, Jacoco, Docker
@@ -87,5 +98,6 @@ Made with ❤️ by **Andrejs Krilovs**
 Happy usage and contributions welcome!
 
 📬 Contact me:
+
 - Telegram: [@andrejs_krilovs](https://t.me/andrejs_krilovs)
 - WhatsApp: [+371 24770033](https://wa.me/37124770033)
