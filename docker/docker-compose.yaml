@@ -31,10 +31,7 @@ services:
         condition: service_healthy
 
   task-tracker-app:
-    image: task-tracker-app:${APP_VERSION}
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.jvm
+    image: andrejskrilovs/task-tracker-app:${APP_VERSION}
     container_name: task-tracker-app
     depends_on:
       db:
@@ -46,10 +43,6 @@ services:
       QUARKUS_HTTP_PORT: 8080
     ports:
       - "8080:8080"
-    volumes:
-      - app-volumes:/app:rw
-    command: [ "java", "-jar", "/app/build/quarkus-app/quarkus-run.jar" ]
 
 volumes:
   db-volumes:
-  app-volumes:
