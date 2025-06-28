@@ -20,7 +20,7 @@ Java Framework.
 
 ---
 
-## 📦 Build & Run the App
+## 🚀 Run the App
 
 🛠️ Before running `start-app`, configure a `.env` file in the project root with the following variables:
 
@@ -47,7 +47,7 @@ chmod +x start-app.sh stop-app.sh
 
 ✅ This will:
 
-- Build backend & frontend
+- Pull application from docker-hub
 - Run PostgreSQL + App containers using Docker Compose
 - Apply DB migrations via Liquibase
 
