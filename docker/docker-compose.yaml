@@ -4,11 +4,11 @@ services:
     container_name: pg_container
     restart: always
     environment:
-      POSTGRES_USER: ${QUARKUS_DATASOURCE_USERNAME}
-      POSTGRES_PASSWORD: ${QUARKUS_DATASOURCE_PASSWORD}
-      POSTGRES_DB: ${QUARKUS_DATASOURCE_DB_NAME}
+      POSTGRES_USER: ${DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${DATASOURCE_PASSWORD}
+      POSTGRES_DB: task_tracker_db
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${QUARKUS_DATASOURCE_USERNAME} -d ${QUARKUS_DATASOURCE_DB_NAME}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DATASOURCE_USERNAME} -d task_tracker_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,8 +22,8 @@ services:
     container_name: pg_adm_container
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${QUARKUS_DATASOURCE_USERNAME}@some.email
-      PGADMIN_DEFAULT_PASSWORD: ${QUARKUS_DATASOURCE_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: ${DATASOURCE_USERNAME}@some.email
+      PGADMIN_DEFAULT_PASSWORD: ${DATASOURCE_PASSWORD}
     ports:
       - "8888:80"
     depends_on:
@@ -40,12 +40,12 @@ services:
       db:
         condition: service_healthy
     environment:
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://db:5432/${QUARKUS_DATASOURCE_DB_NAME}
-      QUARKUS_DATASOURCE_USERNAME: ${QUARKUS_DATASOURCE_USERNAME}
-      QUARKUS_DATASOURCE_PASSWORD: ${QUARKUS_DATASOURCE_PASSWORD}
-      QUARKUS_HTTP_PORT: ${QUARKUS_HTTP_PORT}
+      QUARKUS_DATASOURCE_URL: jdbc:postgresql://db:5432/task_tracker_db
+      QUARKUS_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
+      QUARKUS_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
+      QUARKUS_HTTP_PORT: 8080
     ports:
-      - "${QUARKUS_HTTP_PORT}:${QUARKUS_HTTP_PORT}"
+      - "8080:8080"
     volumes:
       - app-volumes:/app:rw
     command: [ "java", "-jar", "/app/build/quarkus-app/quarkus-run.jar" ]

@@ -3,3 +3,5 @@
 !build/*-runner.jar
 !build/lib/*
 !build/quarkus-app/*
+
+src/main/webui

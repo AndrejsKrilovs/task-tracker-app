@@ -25,10 +25,8 @@ Java Framework.
 🛠️ Before running `start-app`, configure a `.env` file in the project root with the following variables:
 
 ```
-QUARKUS_DATASOURCE_DB_NAME=<database name what you want>
-QUARKUS_DATASOURCE_USERNAME=<your imagine user>
-QUARKUS_DATASOURCE_PASSWORD=<your imagine password>
-QUARKUS_HTTP_PORT=8080 #Better stay as it is
+DATASOURCE_USERNAME=<your imagine user>
+PASSWORD=<your imagine password>
 APP_VERSION=<build verision what you want>
 ```
 
