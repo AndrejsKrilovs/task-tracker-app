@@ -26,7 +26,7 @@ Java Framework.
 
 ```
 DATASOURCE_USERNAME=<your imagine user>
-PASSWORD=<your imagine password>
+DATASOURCE_PASSWORD=<your imagine password>
 APP_VERSION=<build verision what you want>
 ```
 
