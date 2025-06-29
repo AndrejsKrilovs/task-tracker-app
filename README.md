@@ -11,23 +11,11 @@ Java Framework.
 
 ## 🚀 Getting Started
 
-### 🔧 Prerequisites
-
-- [Java 21+](https://jdk.java.net/)
-- [Docker](https://www.docker.com/)
-- [Node.js (auto-installed via Gradle plugin)](https://nodejs.org/)
-- Git (optional)
-
----
-
-## 🚀 Run the App
-
 🛠️ Before running `start-app`, configure a `.env` file in the project root with the following variables:
 
 ```
 DATASOURCE_USERNAME=<your imagine user>
 DATASOURCE_PASSWORD=<your imagine password>
-APP_VERSION=<build verision what you want>
 ```
 
 Now you can start the entire app with one command — no manual DB or server setup needed!
@@ -47,7 +35,7 @@ chmod +x start-app.sh stop-app.sh
 
 ✅ This will:
 
-- Pull application from docker-hub
+- Pull application from [docker-hub](https://hub.docker.com/r/andrejskrilovs/task-tracker-app)
 - Run PostgreSQL + App containers using Docker Compose
 - Apply DB migrations via Liquibase
 
@@ -55,12 +43,12 @@ chmod +x start-app.sh stop-app.sh
 
 ## 🔍 Available Endpoints
 
-| Feature        | URL                                                                      |
-|----------------|--------------------------------------------------------------------------|
-| 🌐 App         | `http://localhost:8080/`                                                 |
-| 🔐 Login Page  | `http://localhost:8080/quinoa/login`                                     |
-| 📘 Swagger     | `http://localhost:8080/swagger-ui/`                                      |
-| 🛠️ DB console | `http://localhost:8888/` (see credentials in docker/docker-compose.yaml) |
+| Feature        | URL                                                                                             |
+|----------------|-------------------------------------------------------------------------------------------------|
+| 🌐 App         | [http://localhost:8080/](http://localhost:8080)                                                 |
+| 🔐 Login Page  | [http://localhost:8080/quinoa/login](http://localhost:8080/quinoa/login)                        |
+| 📘 Swagger     | [http://localhost:8080/swagger-ui/](http://localhost:8080/swagger-ui)                           |
+| 🛠️ DB console | [http://localhost:8888/](http://localhost:8888) (see credentials in docker/docker-compose.yaml) |
 
 ---
 

@@ -31,7 +31,7 @@ services:
         condition: service_healthy
 
   task-tracker-app:
-    image: andrejskrilovs/task-tracker-app:${APP_VERSION}
+    image: andrejskrilovs/task-tracker-app:4.0
     container_name: task-tracker-app
     depends_on:
       db:
