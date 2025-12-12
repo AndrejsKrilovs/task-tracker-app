@@ -3,7 +3,7 @@
     <h3>{{ task.title }}</h3>
     <p class="subtitle">
       <span>Last modified by {{ task.user }}</span><br/>
-      <span>{{ task.modifiedAt ?? task.createdAt }}</span>
+      <span>{{ displayDate }}</span>
     </p>
     <p class="description">{{ task.description }}</p>
   </div>
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Task } from '@/assets/types'
 import TaskModal from './TaskModal'
 
@@ -25,7 +25,13 @@ const emit = defineEmits<{ submitted: void }>()
 const props = defineProps<{ task: Task }>()
 const showUpdateForm = ref(false)
 
-function handleSubmitted() {
+const displayDate = computed(() => {
+  const raw = props.task.modifiedAt ?? props.task.createdAt
+  if (!raw) return ""
+  return new Date(raw).toLocaleString()
+})
+
+const handleSubmitted = () => {
   showUpdateForm.value = false
   emit('submitted')
 }
