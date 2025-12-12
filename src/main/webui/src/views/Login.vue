@@ -99,6 +99,7 @@ async function handleLogin() {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  transition: all 0.3s ease;
 }
 
 .form-title {
@@ -122,7 +123,7 @@ async function handleLogin() {
 }
 
 .form-group input {
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem;
   border: 1px solid #cbd5e0;
   border-radius: 8px;
   font-size: 1rem;
@@ -138,7 +139,7 @@ async function handleLogin() {
 .submit-btn {
   background-color: #4299e1;
   color: white;
-  padding: 0.75rem;
+  padding: 0.85rem;
   width: 100%;
   font-weight: 600;
   font-size: 1rem;
@@ -150,5 +151,47 @@ async function handleLogin() {
 
 .submit-btn:hover {
   background-color: #3182ce;
+}
+
+@media (max-width: 480px) {
+  .login-form {
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group input {
+    font-size: 0.95rem;
+    padding: 0.6rem;
+  }
+
+  .submit-btn {
+    font-size: 0.95rem;
+    padding: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    padding: 1.75rem;
+    max-width: 370px;
+  }
+
+  .form-title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .login-form {
+    max-width: 450px;
+  }
 }
 </style>
