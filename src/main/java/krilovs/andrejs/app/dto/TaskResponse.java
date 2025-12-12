@@ -56,6 +56,13 @@ public record TaskResponse(
   LocalDateTime createdAt,
 
   @Schema(
+    title = "Last modification date",
+    description = "Timestamp of task modification"
+  )
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  LocalDateTime modifiedAt,
+
+  @Schema(
     title = "Last modified by",
     description = "Username who modified the task",
     defaultValue = "john.doe"

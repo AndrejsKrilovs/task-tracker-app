@@ -11,6 +11,8 @@ import krilovs.andrejs.app.repository.TaskRepository;
 import krilovs.andrejs.app.service.ServiceCommand;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequestScoped
 public class UpdateCommand implements ServiceCommand<CreateUpdateTaskRequest, TaskResponse> {
@@ -25,6 +27,7 @@ public class UpdateCommand implements ServiceCommand<CreateUpdateTaskRequest, Ta
   public TaskResponse execute(CreateUpdateTaskRequest input) {
     Task taskEntity = taskMapper.toEntity(input);
     taskEntity.setId(input.getId());
+    taskEntity.setModifiedAt(LocalDateTime.now());
     taskRepository.updateTask(taskEntity);
 
     log.info("Task '{}' updated successfully", taskEntity.getTitle());

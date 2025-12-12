@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -85,6 +86,7 @@ class CreateCommandTest {
     assertEquals("Test task", response.title());
     assertNotNull(response.createdAt());
     assertEquals(TaskStatus.READY_FOR_DEVELOPMENT, response.status());
+    assertNull(response.modifiedAt());
 
     verify(taskRepository).persistTask(taskEntity);
   }
@@ -127,6 +129,7 @@ class CreateCommandTest {
         taskEntity.getDescription(),
         TaskStatus.READY_FOR_DEVELOPMENT,
         taskEntity.getCreatedAt(),
+        taskEntity.getModifiedAt(),
         userEntity.getUsername()
       )
     );

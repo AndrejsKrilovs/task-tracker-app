@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS test.task_table (
   tt_description   TEXT,
   tt_status        VARCHAR(30) NOT NULL,
   tt_created       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  tt_modified      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   tt_user_id       VARCHAR(30),
   CONSTRAINT fk_user FOREIGN KEY (tt_user_id) REFERENCES test.user_table(ut_username) ON DELETE SET NULL
 );

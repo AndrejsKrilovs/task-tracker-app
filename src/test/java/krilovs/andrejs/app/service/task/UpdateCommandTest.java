@@ -49,6 +49,7 @@ class UpdateCommandTest {
     taskEntity.setTitle("Updated task");
     taskEntity.setUser(userEntity);
     taskEntity.setCreatedAt(LocalDateTime.now());
+    taskEntity.setModifiedAt(LocalDateTime.now());
     taskEntity.setStatus(TaskStatus.IN_DEVELOPMENT);
     taskEntity.setDescription("Some updated description");
   }
@@ -69,6 +70,7 @@ class UpdateCommandTest {
     assertEquals("username", response.user());
     assertEquals("Updated task", response.title());
     assertNotNull(response.createdAt());
+    assertNotNull(response.modifiedAt());
     assertEquals(TaskStatus.IN_DEVELOPMENT, response.status());
     verify(taskRepository).updateTask(taskEntity);
   }
@@ -82,6 +84,7 @@ class UpdateCommandTest {
         taskEntity.getDescription(),
         taskEntity.getStatus(),
         taskEntity.getCreatedAt(),
+        taskEntity.getModifiedAt(),
         userEntity.getUsername()
       )
     );

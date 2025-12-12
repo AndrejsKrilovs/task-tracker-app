@@ -53,3 +53,16 @@ databaseChangeLog:
             referencedTableSchemaName: dev
             onDelete: CASCADE
             schemaName: dev
+
+  - changeSet:
+      id: 002-1-added-last-modified-column
+      author: Andrejs Krilovs
+      changes:
+        - addColumn:
+            schemaName: dev
+            tableName: task_table
+            columns:
+              - column:
+                  name: tt_modified
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 @QuarkusTest
 class UpdateTaskTest {
   @Inject
@@ -82,6 +84,7 @@ class UpdateTaskTest {
       .body("id", Matchers.is(createdTaskId.intValue()))
       .body("title", Matchers.equalTo("Updated title"))
       .body("description", Matchers.equalTo("Updated description"))
-      .body("status", Matchers.equalTo("IN_DEVELOPMENT"));
+      .body("status", Matchers.equalTo("IN_DEVELOPMENT"))
+      .body("modifiedAt", Matchers.notNullValue(LocalDateTime.class));
   }
 }

@@ -3,7 +3,7 @@
     <h3>{{ task.title }}</h3>
     <p class="subtitle">
       <span>Last modified by {{ task.user }}</span><br/>
-      <span>{{ task.createdAt}}</span>
+      <span>{{ task.modifiedAt ?? task.createdAt }}</span>
     </p>
     <p class="description">{{ task.description }}</p>
   </div>

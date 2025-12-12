@@ -44,6 +44,9 @@ public class Task {
   @Column(name = "tt_created")
   LocalDateTime createdAt;
 
+  @Column(name = "tt_modified")
+  LocalDateTime modifiedAt;
+
   @JoinColumn(name = "tt_user_id")
   @ManyToOne(fetch = FetchType.LAZY)
   User user;

@@ -46,6 +46,7 @@ public class TaskRepository {
     }
 
     update.set("user", taskEntity.getUser());
+    update.set("modifiedAt", taskEntity.getModifiedAt());
     update.where(cb.equal(root.get("id"), taskEntity.getId()));
     entityManager.createQuery(update).executeUpdate();
     log.info("Updated task to {} into database", taskEntity);
