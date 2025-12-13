@@ -5,7 +5,7 @@
       :can-create-task="canCreateTask"
       :show-create-form="showCreateForm"
       v-model:language="language"
-      @create="showCreateForm = true"
+      @create="openCreateTask"
       @logout="logout"
       @mobileMenu="mobileMenuOpen = $event"
     />
@@ -24,6 +24,8 @@
         :key="status"
         :status="status"
         :statusValue="statusDescriptions[status] || status"
+        :modal-open-signal="modalOpenSignal"
+        @openTask="openUpdateTask"
       />
       <p v-else class="subtitle">
         No available tasks show for user with undefined role. <br/>
@@ -31,6 +33,13 @@
       </p>
     </main>
   </div>
+
+  <TaskModal
+    v-if="showUpdateForm"
+    :task="selectedTask!"
+    @cancel="showUpdateForm = false"
+    @submitted="showUpdateForm = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -44,9 +53,12 @@ import { useUserStore } from '@/assets/store'
 
 const router = useRouter()
 const language = ref('en')
+const modalOpenSignal = ref(0)
 const userStore = useUserStore()
+const showUpdateForm = ref(false)
 const mobileMenuOpen = ref(false)
 const showCreateForm = ref(false)
+const selectedTask = ref<Task | null>(null)
 const availableStatuses = ref<string[]>([])
 
 const user = computed(() => userStore.user?.username ?? 'Guest')
@@ -90,6 +102,17 @@ const logout = async () => {
 const openCreateFromMobile = () => {
   mobileMenuOpen.value = false
   showCreateForm.value = true
+}
+
+const openCreateTask = () => {
+  modalOpenSignal.value++
+  showCreateForm.value = true
+}
+
+const openUpdateTask = (task: Task) => {
+  modalOpenSignal.value++
+  selectedTask.value = task
+  showUpdateForm.value = true
 }
 </script>
 

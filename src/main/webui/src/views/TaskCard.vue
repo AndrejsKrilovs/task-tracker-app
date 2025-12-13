@@ -7,37 +7,22 @@
     </p>
     <p class="description">{{ task.description }}</p>
   </div>
-
-  <TaskModal
-    v-if="showUpdateForm"
-    :task="props.task"
-    @cancel="showUpdateForm = false"
-    @submitted="handleSubmitted"
-  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { Task } from '@/assets/types'
-import TaskModal from './TaskModal'
 
-const emit = defineEmits<{ submitted: void }>()
 const props = defineProps<{ task: Task }>()
-const showUpdateForm = ref(false)
+const emit = defineEmits<{ open: [Task] }>()
 
 const displayDate = computed(() => {
   const raw = props.task.modifiedAt ?? props.task.createdAt
-  if (!raw) return ""
-  return new Date(raw).toLocaleString()
+  return raw ? new Date(raw).toLocaleString() : ''
 })
 
-const handleSubmitted = () => {
-  showUpdateForm.value = false
-  emit('submitted')
-}
-
 const openModal = () => {
-  showUpdateForm.value = true
+  emit('open', props.task)
 }
 </script>
 

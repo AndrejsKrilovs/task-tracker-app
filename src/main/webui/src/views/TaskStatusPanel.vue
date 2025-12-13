@@ -15,7 +15,7 @@
           v-for="task in tasksForStatus"
           :key="task.id"
           :task="task"
-          @submitted="closePanel"
+          @open="onTaskOpen"
         />
       </div>
       <p v-else class="subtitle">
@@ -49,7 +49,16 @@ import { Task } from '@/assets/types'
 import TaskCard from './TaskCard'
 import apiClient from '@/api/axios'
 
-const props = defineProps<{ statusValue: string; status: string }>()
+const props = defineProps<{
+  statusValue: string
+  status: string
+  modalOpenSignal: number
+}>()
+
+const emit = defineEmits<{ openTask: [Task] }>()
+const onTaskOpen = (task: Task) => {
+  emit('openTask', task)
+}
 
 const isOpen = ref(false)
 const currentPage = ref(1)
@@ -91,6 +100,17 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', updateCardsPerPage)
 })
+
+watch(
+  () => props.modalOpenSignal,
+  () => {
+    if (isOpen.value) {
+      isOpen.value = false
+      tasksForStatus.value = []
+      currentPage.value = 1
+    }
+  }
+)
 
 async function fetchTasks() {
   const offset = (currentPage.value - 1) * cardsPerPage.value
