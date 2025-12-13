@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" @click="showUpdateForm = true">
+  <div class="task-card" @click="openModal">
     <h3>{{ task.title }}</h3>
     <p class="subtitle">
       <span>Last modified by {{ task.user }}</span><br/>
@@ -34,6 +34,10 @@ const displayDate = computed(() => {
 const handleSubmitted = () => {
   showUpdateForm.value = false
   emit('submitted')
+}
+
+const openModal = () => {
+  showUpdateForm.value = true
 }
 </script>
 
