@@ -44,6 +44,7 @@ public record UserRegistrationRequest(
   )
   String email,
 
+  @NotNull(message = "User role is required")
   @Schema(
     title = "User role",
     anyOf = UserRole.class,

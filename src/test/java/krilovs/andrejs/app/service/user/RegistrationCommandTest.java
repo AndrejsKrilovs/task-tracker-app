@@ -127,16 +127,13 @@ class RegistrationCommandTest {
 
   static Stream<Arguments> validRequests() {
     UserRegistrationRequest validRequest1 = new UserRegistrationRequest(
-      "username", "pass", null, null
+      "username", "pass", null, UserRole.BUSINESS_ANALYST
     );
     UserRegistrationRequest validRequest2 = new UserRegistrationRequest(
-      "username", "pass", "email@test.com", null
-    );
-    UserRegistrationRequest validRequest3 = new UserRegistrationRequest(
-      "username", "pass", "email@test.com", UserRole.SOFTWARE_DEVELOPER
+      "username", "pass", "email@test.com", UserRole.QA_SPECIALIST
     );
 
-    return Stream.of(Arguments.of(validRequest1), Arguments.of(validRequest2), Arguments.of(validRequest3));
+    return Stream.of(Arguments.of(validRequest1), Arguments.of(validRequest2));
   }
 
   static Stream<Arguments> invalidRequests() {

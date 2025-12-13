@@ -64,7 +64,8 @@ class UserRegistrationTest {
 
     Map<String, String> errorMap = Map.of(
       "registerUser.request.username", "Username is required",
-      "registerUser.request.password", "Password is required"
+      "registerUser.request.password", "Password is required",
+      "registerUser.request.role", "User role is required"
     );
 
     RestAssured.given()
@@ -83,7 +84,7 @@ class UserRegistrationTest {
   @Test
   void shouldNotRegisterDuplicateUserAndReturnConflict() {
     var request = new UserRegistrationRequest(
-      "username", "hashedPwd", null, null
+      "username", "hashedPwd", null, UserRole.SOFTWARE_DEVELOPER
     );
 
     RestAssured.given()

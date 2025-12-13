@@ -24,8 +24,12 @@
       </div>
       <div class="form-group">
         <label for="role">Role</label>
-        <select v-model="form.role" class="item-select">
-          <option :value="null">Default role</option>
+        <select
+          v-model="form.role"
+          class="item-select"
+          :class="{ 'input-error': fieldErrors.role }"
+        >
+          <option disabled :value="null">Select role</option>
           <option
             v-for="(label, value) in roleOptions"
             :key="value"
@@ -108,6 +112,7 @@ async function onSubmit() {
         if (key.includes('username')) fieldErrors.username = value as string
         if (key.includes('password')) fieldErrors.password = value as string
         if (key.includes('email')) fieldErrors.email = value as string
+        if (key.includes('role')) fieldErrors.role = value as string
       })
     }
   }
@@ -199,5 +204,10 @@ async function onSubmit() {
   color: #e53e3e;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.input-error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 1px rgba(229, 62, 62, 0.6);
 }
 </style>
