@@ -1,21 +1,54 @@
 <template>
   <div class="task-tracker-container">
     <header class="header">
-      <div class="welcome-text">Welcome, {{ user }}!</div>
-      <div class="header-actions">
+      <div class="welcome-text">
+        Welcome, {{ user }}!
+      </div>
+
+      <div class="header-actions desktop-only">
         <select v-model="language" class="item-select">
           <option value="en">EN</option>
           <option value="ru">RU</option>
         </select>
 
-        <button v-if="canCreateTask && !showCreateForm" class="main-btn" @click="showCreateForm = true">
+        <button
+          v-if="canCreateTask && !showCreateForm"
+          class="main-btn"
+          @click="showCreateForm = true"
+        >
           Create New Task
         </button>
-        <button class="main-btn" @click="logout">Logout</button>
+
+        <button class="main-btn" @click="logout">
+          Logout
+        </button>
+      </div>
+
+      <button class="burger-btn mobile-only" @click="mobileMenuOpen = !mobileMenuOpen">
+        ☰
+      </button>
+
+      <div v-if="mobileMenuOpen" class="mobile-menu">
+        <select v-model="language" class="item-select full-width">
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+        </select>
+
+        <button
+          v-if="canCreateTask"
+          class="main-btn full-width"
+          @click="openCreateFromMobile"
+        >
+          Create New Task
+        </button>
+
+        <button class="main-btn full-width" @click="logout">
+          Logout
+        </button>
       </div>
     </header>
 
-    <main class="main-content">
+    <main class="main-content" :class="{ 'disabled-content': mobileMenuOpen }">
       <TaskModal
         v-if="showCreateForm"
         :task="{}"
@@ -49,6 +82,7 @@ import { useUserStore } from '@/assets/store'
 const router = useRouter()
 const language = ref('en')
 const userStore = useUserStore()
+const mobileMenuOpen = ref(false)
 const showCreateForm = ref(false)
 const availableStatuses = ref<string[]>([])
 
@@ -82,12 +116,17 @@ onMounted(async () => {
   router.replace('/tasks')
 })
 
-async function logout() {
+const logout = async () => {
   const response = await apiClient.get('/users/logout')
   if (response.status === 200) {
     userStore.clearUser()
     router.push('/logout')
   }
+}
+
+const openCreateFromMobile = () => {
+  mobileMenuOpen.value = false
+  showCreateForm.value = true
 }
 </script>
 
@@ -102,6 +141,7 @@ async function logout() {
 }
 
 .header {
+	position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -145,5 +185,62 @@ async function logout() {
   font-weight: 700;
   color: #2d3748;
   margin-bottom: 0.5rem;
+}
+
+.desktop-only {
+  display: flex;
+  gap: 1rem;
+}
+
+.mobile-only {
+  display: none;
+}
+
+.burger-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #2d3748;
+}
+
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  right: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 220px;
+  z-index: 1000;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.disabled-content {
+  pointer-events: none;
+  user-select: none;
+  filter: blur(1px);
+  opacity: 0.6;
+}
+
+@media (max-width: 435px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .header {
+    padding: 0.75rem 1rem;
+  }
 }
 </style>

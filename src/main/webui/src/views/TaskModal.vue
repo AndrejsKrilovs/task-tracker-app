@@ -192,7 +192,7 @@ function handleValidationError(exception: any) {
   background: #fff;
   padding: 2rem;
   border-radius: 14px;
-  width: 90%;
+  width: 100%;
   max-width: 500px;
   max-height: calc(100dvh - 2rem);
   box-sizing: border-box;
