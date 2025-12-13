@@ -24,6 +24,7 @@
           mobile
           full-width
           :can-create-task="canCreateTask"
+          :show-create-form="showCreateForm"
           v-model:language="language"
           @create="handleMobileCreate"
           @logout="emit('logout')"

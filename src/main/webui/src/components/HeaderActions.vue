@@ -6,7 +6,7 @@
     </select>
 
     <button
-      v-if="canCreateTask"
+      v-if="canCreateTask && !showCreateForm"
       class="main-btn"
       :class="{ 'full-width': fullWidth }"
       @click="$emit('create')"
@@ -27,6 +27,7 @@
 <script setup lang="ts">
 defineProps<{
   canCreateTask: boolean
+  showCreateForm: boolean
   mobile?: boolean
   fullWidth?: boolean
 }>()
