@@ -1,52 +1,14 @@
 <template>
   <div class="task-tracker-container">
-    <header class="header">
-      <div class="welcome-text">
-        Welcome, {{ user }}!
-      </div>
-
-      <div class="header-actions desktop-only">
-        <select v-model="language" class="item-select">
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
-        </select>
-
-        <button
-          v-if="canCreateTask && !showCreateForm"
-          class="main-btn"
-          @click="showCreateForm = true"
-        >
-          Create New Task
-        </button>
-
-        <button class="main-btn" @click="logout">
-          Logout
-        </button>
-      </div>
-
-      <button class="burger-btn mobile-only" @click="mobileMenuOpen = !mobileMenuOpen">
-        ☰
-      </button>
-
-      <div v-if="mobileMenuOpen" class="mobile-menu">
-        <select v-model="language" class="item-select full-width">
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
-        </select>
-
-        <button
-          v-if="canCreateTask"
-          class="main-btn full-width"
-          @click="openCreateFromMobile"
-        >
-          Create New Task
-        </button>
-
-        <button class="main-btn full-width" @click="logout">
-          Logout
-        </button>
-      </div>
-    </header>
+    <AppHeader
+      :user="user"
+      :can-create-task="canCreateTask"
+      :show-create-form="showCreateForm"
+      v-model:language="language"
+      @create="showCreateForm = true"
+      @logout="logout"
+      @mobileMenu="mobileMenuOpen = $event"
+    />
 
     <main class="main-content" :class="{ 'disabled-content': mobileMenuOpen }">
       <TaskModal
@@ -77,6 +39,7 @@ import { useRouter, useRoute } from 'vue-router'
 import apiClient from '@/api/axios'
 import TaskModal from './TaskModal'
 import TaskStatusPanel from './TaskStatusPanel'
+import AppHeader from '@/components/AppHeader'
 import { useUserStore } from '@/assets/store'
 
 const router = useRouter()
@@ -140,38 +103,6 @@ const openCreateFromMobile = () => {
   font-family: 'Segoe UI', sans-serif;
 }
 
-.header {
-	position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  border-radius: 12px;
-  padding: 1rem 2rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-}
-
-.welcome-text {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.item-select {
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #cbd5e0;
-  background: #f7fafc;
-  font-size: 1rem;
-}
-
 .main-content {
   background: white;
   padding: 1rem;
@@ -187,60 +118,10 @@ const openCreateFromMobile = () => {
   margin-bottom: 0.5rem;
 }
 
-.desktop-only {
-  display: flex;
-  gap: 1rem;
-}
-
-.mobile-only {
-  display: none;
-}
-
-.burger-btn {
-  background: none;
-  border: none;
-  font-size: 1.8rem;
-  cursor: pointer;
-  color: #2d3748;
-}
-
-.mobile-menu {
-  position: absolute;
-  top: 100%;
-  right: 1rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 220px;
-  z-index: 1000;
-}
-
-.full-width {
-  width: 100%;
-}
-
 .disabled-content {
   pointer-events: none;
   user-select: none;
   filter: blur(1px);
   opacity: 0.6;
-}
-
-@media (max-width: 435px) {
-  .desktop-only {
-    display: none;
-  }
-
-  .mobile-only {
-    display: block;
-  }
-
-  .header {
-    padding: 0.75rem 1rem;
-  }
 }
 </style>
