@@ -79,7 +79,7 @@ const task = props.task as Task
 const isUpdate = computed(() => !!task.id)
 const canAddUpdateTask = computed(() => {
   const permissions = userStore.user?.userPermissions
-  return
+  return task &&
     task.status != 'COMPLETED' &&
     permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
 })
