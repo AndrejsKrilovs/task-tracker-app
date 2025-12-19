@@ -1,11 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+# Always run from repo root (directory where this script lives)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
+ENV_FILE=".env"
 COMPOSE_FILE="./docker/docker-compose.yaml"
 
-echo "Pulling image from docker-hub..."
-docker pull andrejskrilovs/task-tracker-app:4.0
+echo "Building Quarkus app..."
+./gradlew clean build
 
-echo "Starting application..."
-docker-compose --env-file .env -f "$COMPOSE_FILE" up
+echo "Starting application (docker compose)..."
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up --build

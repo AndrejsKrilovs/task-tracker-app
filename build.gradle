@@ -1,10 +1,7 @@
-import com.github.gradle.node.npm.task.NpmTask
-
 plugins {
     id 'java'
     id 'jacoco'
     id 'io.quarkus'
-    id 'com.github.node-gradle.node' version '7.0.2'
 }
 
 repositories {
@@ -40,7 +37,7 @@ dependencies {
 }
 
 group 'krilovs.andrejs.app'
-version '3.0'
+version '5.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -96,25 +93,6 @@ jacocoTestCoverageVerification {
             }
         }
     }
-}
-
-node {
-    version = '22.16.0'
-    download = true
-    nodeProjectDir = file("src/main/webui")
-}
-
-def frontendDir = file("src/main/webui")
-
-tasks.register("npmBuild", NpmTask) {
-    dependsOn tasks.npmInstall
-    args = ['run', 'build']
-    inputs.dir("$frontendDir/src")
-    outputs.dir("$frontendDir/dist")
-}
-
-tasks.named("build") {
-    dependsOn "npmBuild"
 }
 
 tasks.named("check") {

@@ -1,12 +1,13 @@
 @echo off
-setlocal EnableDelayedExpansion
+setlocal
 
+set "ENV_FILE=.env"
 set "COMPOSE_FILE=.\docker\docker-compose.yaml"
 
-echo Pulling image from docker-hub...
-docker pull andrejskrilovs/task-tracker-app:4.0
+echo Building Quarkus app...
+call .\gradlew clean build || exit /b 1
 
-echo Starting application...
-docker-compose --env-file .env -f "%COMPOSE_FILE%" up
+echo Starting Docker Compose...
+docker compose --env-file "%ENV_FILE%" -f "%COMPOSE_FILE%" up --build
 
 endlocal
