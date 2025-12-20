@@ -1,7 +1,7 @@
 <template>
   <div class="task-tracker-container">
     <AppHeader
-      :user="user"
+      :user="username"
       :can-create-task="canCreateTask"
       :show-create-form="showCreateForm"
       v-model:language="language"
@@ -11,12 +11,6 @@
     />
 
     <main class="main-content" :class="{ 'disabled-content': mobileMenuOpen }">
-      <TaskModal
-        v-if="showCreateForm"
-        :task="{}"
-        @cancel="showCreateForm = false"
-      />
-
       <h1 class="main-title">Task board</h1>
       <TaskStatusPanel
         v-if="availableStatuses.length > 0"
@@ -33,6 +27,13 @@
       </p>
     </main>
   </div>
+
+  <TaskModal
+    v-if="showCreateForm"
+    :task="{}"
+    @cancel="showCreateForm = false"
+    @submitted="showCreateForm = false"
+	/>
 
   <TaskModal
     v-if="showUpdateForm"
@@ -61,7 +62,10 @@ const showCreateForm = ref(false)
 const selectedTask = ref<Task | null>(null)
 const availableStatuses = ref<string[]>([])
 
-const user = computed(() => userStore.user?.username ?? 'Guest')
+const username = computed(() =>
+	userStore.user?.fullName ??
+	userStore.user?.username ?? 'Guest'
+)
 const canCreateTask = computed(() => {
   const permissions = userStore.user?.userPermissions
   return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false

@@ -1,6 +1,6 @@
 <template>
 	<Teleport to="body">
-    <div class="modal-overlay" @click.self="emit('cancel')">
+    <div class="modal-overlay">
       <div class="submit-task-form">
         <h2 class="form-title">Submit task</h2>
 

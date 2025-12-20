@@ -14,4 +14,5 @@ export interface User {
   role: string
   userPermissions: string[]
   username: string
+  fullName: string
 }
