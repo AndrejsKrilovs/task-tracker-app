@@ -79,6 +79,7 @@ class RegistrationCommandTest {
         user.getCreatedAt(),
         user.getLastVisitAt(),
         List.of(),
+        null,
         null
       );
     });

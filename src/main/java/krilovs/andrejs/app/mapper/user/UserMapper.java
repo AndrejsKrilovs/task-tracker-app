@@ -45,7 +45,11 @@ public interface UserMapper {
   @Named("mapUserPermissions")
   default List<UserPermissions> mapRole(UserRole userRole) {
     return switch (Objects.requireNonNullElse(userRole, UserRole.UNKNOWN)) {
-      case PRODUCT_OWNER, BUSINESS_ANALYST, SCRUM_MASTER -> Arrays.asList(UserPermissions.values());
+      case PRODUCT_OWNER -> Arrays.asList(UserPermissions.values());
+      case BUSINESS_ANALYST, SCRUM_MASTER ->
+        Arrays.stream(UserPermissions.values())
+              .filter(p -> p != UserPermissions.CAN_CHANGE_PROFILE_ROLE)
+              .toList();
       default -> List.of();
     };
   }

@@ -45,8 +45,6 @@ class UserMapperTest {
 
   @ParameterizedTest(name = "username = {0}, email = {1}, roleStr = {2}")
   @CsvSource(value = {
-    "username,test@some.email,BUSINESS_ANALYST",
-    "username,test@some.email,SCRUM_MASTER",
     "username,test@some.email,PRODUCT_OWNER"
   })
   void shouldMapToUserResponseWithAllPermissions(String username, String email, String roleStr) {
@@ -60,6 +58,25 @@ class UserMapperTest {
     Assertions.assertEquals("test@some.email", result.email());
     Assertions.assertEquals(UserRole.valueOf(roleStr), result.role());
     Assertions.assertTrue(result.userPermissions().containsAll(Arrays.asList(UserPermissions.values())));
+  }
+
+  @ParameterizedTest(name = "username = {0}, email = {1}, roleStr = {2}")
+  @CsvSource(value = {
+    "username,test@some.email,SCRUM_MASTER",
+    "username,test@some.email,BUSINESS_ANALYST"
+  })
+  void shouldMapToUserResponseExceptChangeProfileStatus(String username, String email, String roleStr) {
+    User user = new User();
+    user.setEmail(email);
+    user.setUsername(username);
+    user.setRole(UserRole.valueOf(roleStr));
+
+    UserResponse result = userMapper.toDto(user);
+    Assertions.assertEquals("username", result.username());
+    Assertions.assertEquals("test@some.email", result.email());
+    Assertions.assertEquals(UserRole.valueOf(roleStr), result.role());
+    Assertions.assertFalse(result.userPermissions().isEmpty());
+    Assertions.assertFalse(result.userPermissions().contains(UserPermissions.CAN_CHANGE_PROFILE_ROLE));
   }
 
   @Test
@@ -103,7 +120,7 @@ class UserMapperTest {
   @CsvSource(value = {"PRODUCT_OWNER", "BUSINESS_ANALYST", "SCRUM_MASTER"})
   void shouldMapValidRoleToUserPermissions(String roleFromString) {
     UserRole role = UserRole.valueOf(roleFromString);
-    Assertions.assertTrue(userMapper.mapRole(role).containsAll(Arrays.asList(UserPermissions.values())));
+    Assertions.assertFalse(userMapper.mapRole(role).isEmpty());
   }
 
   @ParameterizedTest(name = "roleStr = {0}")

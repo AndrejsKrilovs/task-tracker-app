@@ -60,9 +60,16 @@ public record UserResponse(
 
   @Schema(
     readOnly = true,
-    title = "Full Name",
-    description = "Users full name, included First name and Last name"
+    title = "First Name",
+    description = "Users first name"
   )
-  String fullName
+  String name,
+
+  @Schema(
+    readOnly = true,
+    title = "Last Name",
+    description = "Users last name"
+  )
+  String surname
 ) {
 }
