@@ -3,6 +3,7 @@ package krilovs.andrejs.app.mapper;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.TaskResponse;
 import krilovs.andrejs.app.entity.Task;
+import krilovs.andrejs.app.entity.TaskStatus;
 import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.mapper.task.TaskMapperImpl;
 import org.junit.jupiter.api.Assertions;
@@ -38,6 +39,15 @@ class TaskMapperTest {
   @Test
   void shouldNotMapToTaskResponse() {
     Assertions.assertNull(taskMapper.toDto(null));
+  }
+
+   @Test
+  void shouldMapToTaskEntityDefineUser() {
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest();
+    request.setId(1L);
+    request.setStatus(TaskStatus.IN_DEVELOPMENT);
+    request.setUser("user");
+    Assertions.assertNotNull(taskMapper.toEntity(request));
   }
 
   @Test

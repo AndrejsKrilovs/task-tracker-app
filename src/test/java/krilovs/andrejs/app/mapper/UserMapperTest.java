@@ -1,8 +1,10 @@
 package krilovs.andrejs.app.mapper;
 
 import krilovs.andrejs.app.dto.UserPermissions;
+import krilovs.andrejs.app.dto.UserProfileRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
+import krilovs.andrejs.app.entity.Profile;
 import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.entity.UserRole;
 import krilovs.andrejs.app.mapper.user.UserMapperImpl;
@@ -41,23 +43,32 @@ class UserMapperTest {
     Assertions.assertEquals("test@some.email", result.email());
     Assertions.assertNotNull(result.role());
     Assertions.assertTrue(result.userPermissions().isEmpty());
+    Assertions.assertNull(result.name());
+    Assertions.assertNull(result.surname());
   }
 
-  @ParameterizedTest(name = "username = {0}, email = {1}, roleStr = {2}")
+  @ParameterizedTest(name = "username = {0}, email = {1}, roleStr = {2}, name = {3}, surname = {4}")
   @CsvSource(value = {
-    "username,test@some.email,PRODUCT_OWNER"
+    "username,test@some.email,PRODUCT_OWNER,Name,Surname"
   })
-  void shouldMapToUserResponseWithAllPermissions(String username, String email, String roleStr) {
+  void shouldMapToUserResponseWithAllPermissions(String username, String email, String roleStr, String name, String surname) {
     User user = new User();
     user.setEmail(email);
     user.setUsername(username);
     user.setRole(UserRole.valueOf(roleStr));
+
+    Profile profile = new Profile();
+    profile.setName(name);
+    profile.setSurname(surname);
+    user.setProfile(profile);
 
     UserResponse result = userMapper.toDto(user);
     Assertions.assertEquals("username", result.username());
     Assertions.assertEquals("test@some.email", result.email());
     Assertions.assertEquals(UserRole.valueOf(roleStr), result.role());
     Assertions.assertTrue(result.userPermissions().containsAll(Arrays.asList(UserPermissions.values())));
+    Assertions.assertEquals("Name", result.name());
+    Assertions.assertEquals("Surname", result.surname());
   }
 
   @ParameterizedTest(name = "username = {0}, email = {1}, roleStr = {2}")
@@ -77,6 +88,8 @@ class UserMapperTest {
     Assertions.assertEquals(UserRole.valueOf(roleStr), result.role());
     Assertions.assertFalse(result.userPermissions().isEmpty());
     Assertions.assertFalse(result.userPermissions().contains(UserPermissions.CAN_CHANGE_PROFILE_ROLE));
+    Assertions.assertNull(result.name());
+    Assertions.assertNull(result.surname());
   }
 
   @Test
@@ -100,8 +113,35 @@ class UserMapperTest {
   }
 
   @Test
-  void shouldNotMapToUserEntity() {
-    Assertions.assertNull(userMapper.toEntity(null));
+  void shouldNotMapToUserEntityForUserRegistration() {
+    UserRegistrationRequest request = null;
+    Assertions.assertNull(userMapper.toEntity(request));
+  }
+
+  @Test
+  void shouldNotMapToUserEntityForUserProfile() {
+    UserProfileRequest request = null;
+    Assertions.assertNull(userMapper.toEntity(request));
+  }
+
+  @Test
+  void shouldMapWithNullRole() {
+    UserProfileRequest request = new UserProfileRequest("", "", "", "", "", null);
+    Assertions.assertNotNull(userMapper.toEntity(request));
+  }
+
+  @ParameterizedTest(name = "username = {0}, email = {1}, roleStr = {2}, name = {3}, surname = {4}")
+  @CsvSource(value = {
+    "username,'',SOFTWARE_DEVELOPER,Name,Surname",
+    "username,test@some.email,BUSINESS_ANALYST,Name,Surname"
+  })
+  void shouldNotMapToUserEntityForUserProfileChange(String username, String email, String roleStr, String name, String surname) {
+    UserProfileRequest request = new UserProfileRequest(
+      username, name, surname, null, email, UserRole.valueOf(roleStr)
+    );
+
+    User result = userMapper.toEntity(request);
+    Assertions.assertNotNull(result);
   }
 
   @ParameterizedTest

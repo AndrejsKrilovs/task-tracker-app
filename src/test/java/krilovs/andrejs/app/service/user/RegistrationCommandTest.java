@@ -68,7 +68,7 @@ class RegistrationCommandTest {
     UserRegistrationRequest request = new UserRegistrationRequest(username, password, email, role);
 
     Mockito.when(userRepository.findUserByUsername(Mockito.any())).thenReturn(Optional.empty());
-    Mockito.when(userMapper.toEntity(Mockito.any())).thenReturn(userEntity);
+    Mockito.when(userMapper.toEntity(Mockito.any(UserRegistrationRequest.class))).thenReturn(userEntity);
     Mockito.when(passwordService.hashPassword(Mockito.any())).thenReturn("hashedPassword");
     Mockito.when(userMapper.toDto(Mockito.any())).thenAnswer(invocation -> {
       User user = invocation.getArgument(0);
