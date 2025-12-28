@@ -1,6 +1,7 @@
 package krilovs.andrejs.app.mapper.user;
 
 import krilovs.andrejs.app.dto.UserPermissions;
+import krilovs.andrejs.app.dto.UserProfileRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.entity.User;
@@ -15,16 +16,27 @@ import java.util.Objects;
 
 @Mapper(componentModel = "jakarta")
 public interface UserMapper {
+  @Mapping(target = "name", source = "profile.name")
   @Mapping(target = "role", defaultValue = "UNKNOWN")
+  @Mapping(target = "surname", source = "profile.surname")
   @Mapping(target = "userPermissions", source = "role", qualifiedByName = "mapUserPermissions")
   UserResponse toDto(User user);
 
   @Mapping(target = "tasks", ignore = true)
+  @Mapping(target = "profile", ignore = true)
   @Mapping(target = "password", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "lastVisitAt", ignore = true)
   @Mapping(target = "role", source = "role", qualifiedByName = "mapRole")
   User toEntity(UserRegistrationRequest request);
+
+  @Mapping(target = "tasks", ignore = true)
+  @Mapping(target = "profile", ignore = true)
+  @Mapping(target = "password", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "lastVisitAt", ignore = true)
+  @Mapping(target = "role", source = "role", qualifiedByName = "mapRole")
+  User toEntity(UserProfileRequest request);
 
   @Named("mapRole")
   default UserRole mapRole(String roleStr) {
@@ -45,7 +57,11 @@ public interface UserMapper {
   @Named("mapUserPermissions")
   default List<UserPermissions> mapRole(UserRole userRole) {
     return switch (Objects.requireNonNullElse(userRole, UserRole.UNKNOWN)) {
-      case PRODUCT_OWNER, BUSINESS_ANALYST, SCRUM_MASTER -> Arrays.asList(UserPermissions.values());
+      case PRODUCT_OWNER -> Arrays.asList(UserPermissions.values());
+      case BUSINESS_ANALYST, SCRUM_MASTER ->
+        Arrays.stream(UserPermissions.values())
+              .filter(p -> p != UserPermissions.CAN_CHANGE_PROFILE_ROLE)
+              .toList();
       default -> List.of();
     };
   }

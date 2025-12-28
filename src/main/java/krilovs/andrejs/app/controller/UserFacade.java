@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
@@ -18,6 +19,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import krilovs.andrejs.app.config.ConfigConstants;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.UserLoginRequest;
+import krilovs.andrejs.app.dto.UserProfileRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
 import krilovs.andrejs.app.service.JwtService;
@@ -25,6 +27,7 @@ import krilovs.andrejs.app.service.ServiceCommandExecutor;
 import krilovs.andrejs.app.service.user.LoginCommand;
 import krilovs.andrejs.app.service.user.LogoutCommand;
 import krilovs.andrejs.app.service.user.RegistrationCommand;
+import krilovs.andrejs.app.service.user.UpdateProfileCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -111,5 +114,24 @@ public class UserFacade {
         ConfigConstants.COOKIE_STRING_BEFORE_LOGOUT.formatted(ConfigConstants.AUTH_TOKEN)
       )
       .build();
+  }
+
+  @PUT
+  @Authenticated
+  @Path("/profile")
+  @Operation(summary = "Update user profile", description = "Updating user profile")
+  @APIResponses(value = {
+    @APIResponse(responseCode = "202", description = "User profile successfully updated",
+                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+    @APIResponse(responseCode = "400", description = "Incorrect user credentials",
+                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+    @APIResponse(responseCode = "401", description = "Unauthorized user")
+  })
+  public Response updateProfile(@Context SecurityContext securityContext, @Valid UserProfileRequest request) {
+    String username = securityContext.getUserPrincipal().getName();
+    log.info("Requested for update profile. User: '{}'", username);
+    UserResponse result = executor.run(UpdateProfileCommand.class, request);
+    log.info("Successfully updated profile for user '{}' with status '{}'", username, Response.Status.ACCEPTED);
+    return Response.status(Response.Status.ACCEPTED).entity(result).build();
   }
 }

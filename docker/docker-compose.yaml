@@ -34,7 +34,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.jvm
-    image: andrejskrilovs/task-tracker-app:5.0
+    image: andrejskrilovs/task-tracker-app:6.0
     container_name: task-tracker-app
     restart: always
     depends_on:

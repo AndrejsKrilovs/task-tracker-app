@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-profile-table
+      author: Andrejs Krilovs
+      changes:
+        - createTable:
+            schemaName: dev
+            tableName: user_profile_table
+            columns:
+              - column:
+                  name: up_username
+                  type: VARCHAR(30)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: up_name
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: up_surname
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: user_profile_table
+            baseColumnNames: up_username
+            baseTableSchemaName: dev
+            constraintName: fk_user_profile
+            referencedTableName: user_table
+            referencedColumnNames: ut_username
+            referencedTableSchemaName: dev
+            onDelete: CASCADE
+            schemaName: dev

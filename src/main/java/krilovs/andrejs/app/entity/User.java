@@ -5,8 +5,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -46,4 +48,12 @@ public class User {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   List<Task> tasks;
+
+  @OneToOne(
+    mappedBy = "user",
+    orphanRemoval = true,
+    fetch = FetchType.LAZY,
+    cascade = { CascadeType.PERSIST, CascadeType.MERGE }
+  )
+  Profile profile;
 }

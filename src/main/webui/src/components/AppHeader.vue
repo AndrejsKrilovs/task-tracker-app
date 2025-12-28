@@ -8,9 +8,12 @@
       <HeaderActions
         :can-create-task="canCreateTask"
         :show-create-form="showCreateForm"
+        :view-mode="viewMode"
         v-model:language="language"
         @create="emit('create')"
         @logout="emit('logout')"
+        @profile="emit('profile')"
+        @tasks="emit('tasks')"
       />
     </div>
 
@@ -25,9 +28,12 @@
           full-width
           :can-create-task="canCreateTask"
           :show-create-form="showCreateForm"
+          :view-mode="viewMode"
           v-model:language="language"
           @create="handleMobileCreate"
           @logout="emit('logout')"
+          @profile="emit('profile')"
+          @tasks="emit('tasks')"
         />
       </div>
     </div>
@@ -41,6 +47,8 @@ import HeaderActions from './HeaderActions.vue'
 const emit = defineEmits<{
   create: void
   logout: void
+  profile: void
+  tasks: void
   mobileMenu(open: boolean): void
 }>()
 
@@ -48,6 +56,7 @@ defineProps<{
   user: string
   canCreateTask: boolean
   showCreateForm: boolean
+  viewMode: 'tasks' | 'profile'
 }>()
 
 const isMobile = ref(false)

@@ -19,3 +19,10 @@ CREATE TABLE IF NOT EXISTS test.task_table (
   tt_user_id       VARCHAR(30),
   CONSTRAINT fk_user FOREIGN KEY (tt_user_id) REFERENCES test.user_table(ut_username) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS test.user_profile_table (
+  up_username      VARCHAR(30) PRIMARY KEY,
+  up_name          VARCHAR(20) NOT NULL,
+  up_surname       VARCHAR(20) NOT NULL,
+  CONSTRAINT fk_user_profile FOREIGN KEY (up_username) REFERENCES test.user_table(ut_username)
+);

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Register from '@/views/Register'
 import Login from '@/views/Login'
 import TaskTracker from '@/views/TaskTracker'
+import UserProfilePanel from '@/views/UserProfilePanel'
 import { useUserStore } from '@/assets/store'
 
 const routes = [
@@ -25,6 +26,12 @@ const routes = [
     path: '/tasks',
     name: 'Tasks',
     component: TaskTracker,
+    meta: { requiresAuth: true }
+  },
+	{
+    path: '/profile',
+    name: 'Profile',
+    component: UserProfilePanel,
     meta: { requiresAuth: true }
   },
   {

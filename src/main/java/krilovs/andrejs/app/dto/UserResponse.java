@@ -56,6 +56,20 @@ public record UserResponse(
     title = "User permissions",
     description = "Shows what user allow in out system"
   )
-  List<UserPermissions> userPermissions
+  List<UserPermissions> userPermissions,
+
+  @Schema(
+    readOnly = true,
+    title = "First Name",
+    description = "Users first name"
+  )
+  String name,
+
+  @Schema(
+    readOnly = true,
+    title = "Last Name",
+    description = "Users last name"
+  )
+  String surname
 ) {
 }

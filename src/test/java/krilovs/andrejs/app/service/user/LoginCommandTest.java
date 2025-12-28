@@ -71,7 +71,9 @@ class LoginCommandTest {
         user.getRole(),
         user.getCreatedAt(),
         user.getLastVisitAt(),
-        List.of()
+        List.of(),
+        null,
+        null
       );
     });
 

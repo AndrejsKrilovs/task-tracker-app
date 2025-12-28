@@ -1,38 +1,48 @@
 <template>
   <div class="task-tracker-container">
     <AppHeader
-      :user="user"
+      :user="username"
       :can-create-task="canCreateTask"
       :show-create-form="showCreateForm"
+      :view-mode="viewMode"
       v-model:language="language"
       @create="openCreateTask"
       @logout="logout"
+      @profile="openProfile"
+      @tasks="openTasks"
       @mobileMenu="mobileMenuOpen = $event"
     />
 
     <main class="main-content" :class="{ 'disabled-content': mobileMenuOpen }">
-      <TaskModal
-        v-if="showCreateForm"
-        :task="{}"
-        @cancel="showCreateForm = false"
-      />
-
-      <h1 class="main-title">Task board</h1>
-      <TaskStatusPanel
-        v-if="availableStatuses.length > 0"
-        v-for="status in availableStatuses"
-        :key="status"
-        :status="status"
-        :statusValue="statusDescriptions[status] || status"
-        :modal-open-signal="modalOpenSignal"
-        @openTask="openUpdateTask"
-      />
-      <p v-else class="subtitle">
-        No available tasks show for user with undefined role. <br/>
-        Please contact Business analyst, Product owner or Scrum master
-      </p>
+      <template v-if="viewMode === 'tasks'">
+        <h1 class="main-title">Task board</h1>
+        <TaskStatusPanel
+          v-if="availableStatuses.length > 0"
+          v-for="status in availableStatuses"
+          :key="status"
+          :status="status"
+          :statusValue="statusDescriptions[status] || status"
+          :modal-open-signal="modalOpenSignal"
+          @openTask="openUpdateTask"
+        />
+        <p v-else class="subtitle">
+          No available tasks show for user with undefined role. <br/>
+          Please contact Business analyst, Product owner or Scrum master
+        </p>
+      </template>
+      <template v-else>
+        <h1 class="main-title">User profile</h1>
+        <UserProfilePanel />
+      </template>
     </main>
   </div>
+
+  <TaskModal
+    v-if="showCreateForm"
+    :task="{}"
+    @cancel="showCreateForm = false"
+    @submitted="showCreateForm = false"
+	/>
 
   <TaskModal
     v-if="showUpdateForm"
@@ -48,6 +58,7 @@ import { useRouter, useRoute } from 'vue-router'
 import apiClient from '@/api/axios'
 import TaskModal from './TaskModal'
 import TaskStatusPanel from './TaskStatusPanel'
+import UserProfilePanel from './UserProfilePanel'
 import AppHeader from '@/components/AppHeader'
 import { useUserStore } from '@/assets/store'
 
@@ -60,8 +71,15 @@ const mobileMenuOpen = ref(false)
 const showCreateForm = ref(false)
 const selectedTask = ref<Task | null>(null)
 const availableStatuses = ref<string[]>([])
+const viewMode = ref<'tasks' | 'profile'>('tasks')
 
-const user = computed(() => userStore.user?.username ?? 'Guest')
+const username = computed(() => {
+  const usr = userStore.user
+  return usr
+    ? [usr.name, usr.surname].filter(Boolean).join(' ') || usr.username
+    : 'Guest'
+})
+
 const canCreateTask = computed(() => {
   const permissions = userStore.user?.userPermissions
   return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
@@ -87,8 +105,6 @@ onMounted(async () => {
       availableStatuses.value = []
     }
   }
-
-  router.replace('/tasks')
 })
 
 const logout = async () => {
@@ -113,6 +129,14 @@ const openUpdateTask = (task: Task) => {
   modalOpenSignal.value++
   selectedTask.value = task
   showUpdateForm.value = true
+}
+
+const openProfile = () => {
+  viewMode.value = 'profile'
+}
+
+const openTasks = () => {
+  viewMode.value = 'tasks'
 }
 </script>
 

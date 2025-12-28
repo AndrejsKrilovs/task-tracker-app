@@ -14,6 +14,14 @@
       Create New Task
     </button>
 
+	<button
+    class="main-btn"
+    :class="{ 'full-width': fullWidth }"
+    @click="$emit(viewMode === 'tasks' ? 'profile' : 'tasks')"
+	>
+    {{ viewMode === 'tasks' ? 'Profile' : 'Tasks' }}
+	</button>
+
     <button
       class="main-btn"
       :class="{ 'full-width': fullWidth }"
@@ -28,6 +36,7 @@
 defineProps<{
   canCreateTask: boolean
   showCreateForm: boolean
+  viewMode: 'tasks' | 'profile'
   mobile?: boolean
   fullWidth?: boolean
 }>()
@@ -35,6 +44,8 @@ defineProps<{
 defineEmits<{
   create: void
   logout: void
+  profile: void
+  tasks: void
 }>()
 
 const language = defineModel<string>('language')

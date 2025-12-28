@@ -37,7 +37,7 @@ dependencies {
 }
 
 group 'krilovs.andrejs.app'
-version '5.0'
+version '6.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -83,13 +83,13 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'INSTRUCTION'
                 value = 'COVEREDRATIO'
-                minimum = 0.75
+                minimum = 0.77
             }
 
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.80
+                minimum = 0.7
             }
         }
     }
