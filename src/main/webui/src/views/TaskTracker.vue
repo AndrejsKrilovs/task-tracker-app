@@ -73,10 +73,16 @@ const selectedTask = ref<Task | null>(null)
 const availableStatuses = ref<string[]>([])
 const viewMode = ref<'tasks' | 'profile'>('tasks')
 
-const username = computed(() =>
-	userStore.user?.fullName ??
-	userStore.user?.username ?? 'Guest'
-)
+const username = computed(() => {
+  const { name, surname, username } = userStore.user
+
+  const fullName = [name, surname]
+    .filter(Boolean)
+    .join(' ')
+
+  return fullName || username || 'Guest'
+})
+
 const canCreateTask = computed(() => {
   const permissions = userStore.user?.userPermissions
   return permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
