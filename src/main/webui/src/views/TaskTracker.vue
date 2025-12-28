@@ -74,13 +74,10 @@ const availableStatuses = ref<string[]>([])
 const viewMode = ref<'tasks' | 'profile'>('tasks')
 
 const username = computed(() => {
-  const { name, surname, username } = userStore.user
-
-  const fullName = [name, surname]
-    .filter(Boolean)
-    .join(' ')
-
-  return fullName || username || 'Guest'
+  const usr = userStore.user
+  return usr
+    ? [usr.name, usr.surname].filter(Boolean).join(' ') || usr.username
+    : 'Guest'
 })
 
 const canCreateTask = computed(() => {

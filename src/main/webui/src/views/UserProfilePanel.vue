@@ -3,7 +3,7 @@
     <section class="profile-form">
       <UserForm mode="profile" />
     </section>
-    <section class="profile-stats">
+    <section v-show="false" class="profile-stats">
        <p class="subtitle">Statistics profile page (coming next)</p>
     </section>
   </div>
