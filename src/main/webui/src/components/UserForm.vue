@@ -211,7 +211,7 @@ const onSubmit = async () => {
         if (key.includes('password')) fieldErrors.password = value as string
         if (key.includes('surname')) fieldErrors.surname = value as string
         if (key.includes('email')) fieldErrors.email = value as string
-        if (key.includes('name')) fieldErrors.name = value as string
+        if (key.includes('.name')) fieldErrors.name = value as string
         if (key.includes('role')) fieldErrors.role = value as string
       })
     }
