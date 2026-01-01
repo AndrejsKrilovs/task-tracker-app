@@ -41,13 +41,13 @@ public class ShowUserAvailableTaskStatusesCommand implements ServiceCommand<Void
 
   @Override
   public TaskStatusResponse execute(Void input) {
-    UserRole userRole = jwtService.getGroups()
+    var userRole = jwtService.getGroups()
       .stream()
       .map(UserRole::valueOf)
       .findFirst()
       .orElse(UserRole.UNKNOWN);
 
-    List<TaskStatus> taskRoles = ROLE_STATUSES.getOrDefault(userRole, List.of())
+    var taskRoles = ROLE_STATUSES.getOrDefault(userRole, List.of())
       .stream()
       .toList();
     log.info("Selected '{}' statuses", taskRoles);

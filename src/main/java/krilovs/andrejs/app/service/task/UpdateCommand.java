@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.TaskResponse;
-import krilovs.andrejs.app.entity.Task;
 import krilovs.andrejs.app.mapper.task.TaskMapper;
 import krilovs.andrejs.app.repository.TaskRepository;
 import krilovs.andrejs.app.service.ServiceCommand;
@@ -25,7 +24,7 @@ public class UpdateCommand implements ServiceCommand<CreateUpdateTaskRequest, Ta
   @Override
   @Transactional
   public TaskResponse execute(CreateUpdateTaskRequest input) {
-    Task taskEntity = taskMapper.toEntity(input);
+    var taskEntity = taskMapper.toEntity(input);
     taskEntity.setId(input.getId());
     taskEntity.setModifiedAt(LocalDateTime.now());
     taskRepository.updateTask(taskEntity);

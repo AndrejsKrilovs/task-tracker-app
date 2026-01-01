@@ -23,7 +23,7 @@ public class ShowTaskStatusesToChangeCommand implements ServiceCommand<TaskStatu
 
   @Override
   public TaskStatusResponse execute(TaskStatus input) {
-    List<TaskStatus> taskRoles = AVAILABLE_TASK_STATUSES.getOrDefault(input, List.of());
+    var taskRoles = AVAILABLE_TASK_STATUSES.getOrDefault(input, List.of());
     log.info("Selected '{}' statuses", taskRoles);
     return new TaskStatusResponse(taskRoles);
   }

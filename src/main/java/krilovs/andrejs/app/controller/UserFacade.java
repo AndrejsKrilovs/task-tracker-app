@@ -130,7 +130,6 @@ public class UserFacade {
   public Response updateProfile(@Valid UserProfileRequest request) {
     var username = request.username();
     log.info("Requested for update profile. User: '{}'", request.username());
-    log.info("{}", request);
     var result = executor.run(UpdateProfileCommand.class, request);
     log.info("Successfully updated profile for user '{}' with status '{}'", username, Response.Status.ACCEPTED);
     return Response.status(Response.Status.ACCEPTED).entity(result).build();
