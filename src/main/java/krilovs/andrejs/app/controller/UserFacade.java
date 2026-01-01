@@ -64,7 +64,7 @@ public class UserFacade {
   })
   public Response registerUser(@Valid UserRegistrationRequest request) {
     log.info("Requested to create user '{}'", request.username());
-    UserResponse result = executor.run(RegistrationCommand.class, request);
+    var result = executor.run(RegistrationCommand.class, request);
     log.info("Successfully registered user '{}' with status '{}'", request.username(), Response.Status.CREATED);
     return Response.status(Response.Status.CREATED).entity(result).build();
   }
@@ -83,8 +83,8 @@ public class UserFacade {
   })
   public Response login(@Valid UserLoginRequest request) {
     log.info("Requested for login. User: '{}'", request.username());
-    UserResponse result = executor.run(LoginCommand.class, request);
-    String generatedToken = jwtService.generateToken(result.username(), result.role().name());
+    var result = executor.run(LoginCommand.class, request);
+    var generatedToken = jwtService.generateToken(result.username(), result.role().name());
     log.info("Successfully logged in with status '{}'", Response.Status.OK);
     return Response.status(Response.Status.OK).entity(result)
       .header(
@@ -103,7 +103,7 @@ public class UserFacade {
     @APIResponse(responseCode = "401", description = "Unauthorized user")
   })
   public Response logout(@Context SecurityContext securityContext) {
-    String username = securityContext.getUserPrincipal().getName();
+    var username = securityContext.getUserPrincipal().getName();
     log.info("Requested for logout. User: '{}'", username);
 
     executor.run(LogoutCommand.class, username);
@@ -127,10 +127,11 @@ public class UserFacade {
                  content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
     @APIResponse(responseCode = "401", description = "Unauthorized user")
   })
-  public Response updateProfile(@Context SecurityContext securityContext, @Valid UserProfileRequest request) {
-    String username = securityContext.getUserPrincipal().getName();
-    log.info("Requested for update profile. User: '{}'", username);
-    UserResponse result = executor.run(UpdateProfileCommand.class, request);
+  public Response updateProfile(@Valid UserProfileRequest request) {
+    var username = request.username();
+    log.info("Requested for update profile. User: '{}'", request.username());
+    log.info("{}", request);
+    var result = executor.run(UpdateProfileCommand.class, request);
     log.info("Successfully updated profile for user '{}' with status '{}'", username, Response.Status.ACCEPTED);
     return Response.status(Response.Status.ACCEPTED).entity(result).build();
   }
