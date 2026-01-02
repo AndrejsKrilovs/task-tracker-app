@@ -158,6 +158,15 @@ watch(
   { immediate: true }
 )
 
+const isUnchanged: boolean = () => {
+  return (
+    form.email === userStore.user.email &&
+    form.role === userStore.user.role &&
+    form.name === userStore.user.name.trim() &&
+    form.surname === userStore.user.surname.trim()
+  )
+}
+
 const onSubmit = async () => {
   errorMessage.value = null
   Object.keys(fieldErrors).forEach(key => delete fieldErrors[key])
@@ -167,6 +176,10 @@ const onSubmit = async () => {
     form.password !== form.confirmPassword
   ) {
     fieldErrors.confirmPassword = 'Passwords do not match'
+    return
+  }
+
+  if (isUnchanged()) {
     return
   }
 
