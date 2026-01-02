@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.dto.UserResponse;
-import krilovs.andrejs.app.entity.User;
 import krilovs.andrejs.app.mapper.user.UserMapper;
 import krilovs.andrejs.app.repository.UserRepository;
 import krilovs.andrejs.app.service.PasswordService;
@@ -38,7 +37,7 @@ public class RegistrationCommand implements ServiceCommand<UserRegistrationReque
   }
 
   private UserResponse persistAndRegisterUser(UserRegistrationRequest input) {
-    User userEntity = userMapper.toEntity(input);
+    var userEntity = userMapper.toEntity(input);
     log.info("Hashing password");
     userEntity.setPassword(passwordService.hashPassword(input.password()));
     log.info("Setting creation date");

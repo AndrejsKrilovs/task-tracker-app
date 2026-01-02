@@ -11,8 +11,6 @@ import krilovs.andrejs.app.service.PasswordService;
 import krilovs.andrejs.app.service.ServiceCommand;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Optional;
-
 @Slf4j
 @RequestScoped
 public class LoginCommand implements ServiceCommand<UserLoginRequest, UserResponse> {
@@ -27,8 +25,8 @@ public class LoginCommand implements ServiceCommand<UserLoginRequest, UserRespon
 
   @Override
   public UserResponse execute(UserLoginRequest input) {
-    Optional<User> userFromDatabase = userRepository.findUserByUsername(input.username());
-    String hashedPassword = userFromDatabase.map(User::getPassword).orElse("");
+    var userFromDatabase = userRepository.findUserByUsername(input.username());
+    var hashedPassword = userFromDatabase.map(User::getPassword).orElse("");
 
     log.info("Verifying password");
     if (userFromDatabase.isPresent() && passwordService.verifyPassword(input.password(), hashedPassword)) {

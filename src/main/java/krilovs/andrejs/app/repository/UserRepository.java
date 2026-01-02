@@ -3,9 +3,6 @@ package krilovs.andrejs.app.repository;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Root;
 import krilovs.andrejs.app.dto.UserProfileRequest;
 import krilovs.andrejs.app.entity.Profile;
 import krilovs.andrejs.app.entity.User;
@@ -33,9 +30,9 @@ public class UserRepository {
   }
 
   public Integer updateUserLastVisitForUser(String username) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaUpdate<User> update = cb.createCriteriaUpdate(User.class);
-    Root<User> root = update.from(User.class);
+    var cb = entityManager.getCriteriaBuilder();
+    var update = cb.createCriteriaUpdate(User.class);
+    var root = update.from(User.class);
 
     update.set(root.get("lastVisitAt"), LocalDateTime.now());
     update.where(cb.equal(root.get("username"), username));
@@ -45,10 +42,10 @@ public class UserRepository {
   }
 
   public void updateUserProfile(User userEntity, UserProfileRequest request) {
-    String name = Objects.requireNonNullElse(request.name(), "");
-    String email = Objects.requireNonNullElse(request.email(), "");
-    String surname = Objects.requireNonNullElse(request.surname(), "");
-    UserRole role = Objects.requireNonNullElse(request.role(), UserRole.UNKNOWN);
+    var name = Objects.requireNonNullElse(request.name(), "");
+    var email = Objects.requireNonNullElse(request.email(), "");
+    var surname = Objects.requireNonNullElse(request.surname(), "");
+    var role = Objects.requireNonNullElse(request.role(), UserRole.UNKNOWN);
 
     if (!email.isBlank()) {
       userEntity.setEmail(email);
@@ -57,8 +54,10 @@ public class UserRepository {
       userEntity.setRole(role);
     }
     if (!name.isBlank() || !surname.isBlank()) {
-      Profile profile = userEntity.getProfile();
+      log.info("Checking if profile exists for user {}", userEntity.getUsername());
+      var profile = userEntity.getProfile();
       if (Objects.isNull(profile)) {
+        log.info("Creates new profile for user {}", userEntity.getUsername());
         profile = new Profile();
         profile.setUser(userEntity);
         userEntity.setProfile(profile);

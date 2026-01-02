@@ -3,11 +3,6 @@ package krilovs.andrejs.app.repository;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.ParameterExpression;
-import jakarta.persistence.criteria.Root;
 import krilovs.andrejs.app.entity.Task;
 import krilovs.andrejs.app.entity.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +22,13 @@ public class TaskRepository {
   }
 
   public void updateTask(Task taskEntity) {
-    String taskTitle = Optional.ofNullable(taskEntity.getTitle()).orElse("");
-    String taskDescription = Optional.ofNullable(taskEntity.getDescription()).orElse("");
-    TaskStatus taskStatus = Optional.ofNullable(taskEntity.getStatus()).orElse(TaskStatus.UNKNOWN);
+    var taskTitle = Optional.ofNullable(taskEntity.getTitle()).orElse("");
+    var taskDescription = Optional.ofNullable(taskEntity.getDescription()).orElse("");
+    var taskStatus = Optional.ofNullable(taskEntity.getStatus()).orElse(TaskStatus.UNKNOWN);
 
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaUpdate<Task> update = cb.createCriteriaUpdate(Task.class);
-    Root<Task> root = update.from(Task.class);
+    var cb = entityManager.getCriteriaBuilder();
+    var update = cb.createCriteriaUpdate(Task.class);
+    var root = update.from(Task.class);
 
     if (!taskTitle.isBlank()) {
       update.set("title", taskTitle);
@@ -53,11 +48,11 @@ public class TaskRepository {
   }
 
   public List<Task> findTasksByStatus(TaskStatus status, int offset, int limit) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Task> select = cb.createQuery(Task.class);
-    Root<Task> root = select.from(Task.class);
+    var cb = entityManager.getCriteriaBuilder();
+    var select = cb.createQuery(Task.class);
+    var root = select.from(Task.class);
 
-    ParameterExpression<TaskStatus> statusParam = cb.parameter(TaskStatus.class, "status");
+    var statusParam = cb.parameter(TaskStatus.class, "status");
     select.select(root)
       .where(cb.equal(root.get("status"), statusParam))
       .orderBy(cb.desc(root.get("createdAt")));
@@ -71,9 +66,9 @@ public class TaskRepository {
   }
 
   public long countTasksByStatus(TaskStatus status) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-    Root<Task> root = countQuery.from(Task.class);
+    var cb = entityManager.getCriteriaBuilder();
+    var countQuery = cb.createQuery(Long.class);
+    var root = countQuery.from(Task.class);
 
     countQuery.select(cb.count(root)).where(cb.equal(root.get("status"), status));
     log.info("Getting total count for tasks with status '{}'", status);
