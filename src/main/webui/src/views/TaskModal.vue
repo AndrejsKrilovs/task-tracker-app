@@ -19,6 +19,26 @@
             </p>
           </div>
 
+          <div class="form-group">
+            <label for="assignTo">Assign to</label>
+            <select
+              id="assign_to"
+              v-model="form.assignTo"
+              class="item-select"
+            >
+              <option
+                v-for="availableUser in availableUsersFromApi"
+                :key="availableUser.username"
+                :value="availableUser.username"
+              >
+                <span v-if="availableUser.name && availableUser.surname">
+                  {{ availableUser.name }} {{ availableUser.surname }}
+                </span>
+                <span v-else>{{ availableUser.username }}</span>
+              </option>
+            </select>
+          </div>
+
           <div v-if="props.task.status" class="form-group">
             <label for="status">Status</label>
             <select
@@ -66,9 +86,9 @@
 </template>
 
 <script setup lang="ts">
-import { Task } from '@/assets/types'
+import { Task, User } from '@/assets/types'
 import { useUserStore } from '@/assets/store'
-import { reactive, ref, onMounted, computed } from 'vue'
+import { reactive, ref, onMounted, computed, watch } from 'vue'
 import apiClient from '@/api/axios'
 
 const emit = defineEmits<{ cancel: void; submitted: void }>()
@@ -86,50 +106,59 @@ const canAddUpdateTask = computed(() => {
 
 const fieldError = reactive<{ [key: string]: string }>({})
 const taskStatusesFromApi = ref<string[]>([])
+const availableUsersFromApi = ref<User[]>([])
 
 const form = reactive({
   id: task.id || '',
   title: task.title || '',
   status: task.status || '',
+  assignTo: task.assignTo || '',
   description: task.description || ''
 })
 
 onMounted(async () => {
+	loadAvailableUsers(task.status)
   if (task.status) {
     const { data } = await apiClient.get(`/tasks/statusesToChange/${task.status}`)
     taskStatusesFromApi.value = [task.status, ...data.statuses]
   }
 })
 
-function isUnchanged(): boolean {
+watch(
+  () => form.status,
+  (newStatus, oldStatus) => {
+    if (newStatus === oldStatus) return
+    loadAvailableUsers(newStatus)
+  }
+)
+
+const isUnchanged: boolean = () => {
   return (
     task.title === form.title.trim() &&
     task.status === form.status &&
+    task.assignTo === form.assignTo &&
     task.description === form.description.trim()
   )
 }
 
-function handleSubmit() {
-  if (isUpdate.value && !isUnchanged()) {
-    updateTask()
-  }
+const handleSubmit: void = () => {
   if (isUnchanged()) {
     emit('cancel')
+    return
   }
-  if (!isUpdate.value) {
-    createTask()
-  }
+	  submitTask(isUpdate.value)
 }
 
-async function createTask() {
+const submitTask: void = async(isUpdateMode: boolean) => {
   try {
-    const { data } = await apiClient.post('/tasks/create', {
-      title: form.title.trim(),
-      description: form.description?.trim()
+    const { data } = await apiClient({
+      method: isUpdateMode ? 'put' : 'post',
+      url: isUpdateMode ? `/tasks/update` : '/tasks/create',
+      data: buildPayload(isUpdateMode)
     })
 
     emit('submitted')
-    alert(`Task '${data.title}' created`)
+    alert(`Task '${data.title}' ${isUpdateMode ? 'updated' : 'created'}`)
     resetForm()
     emit('cancel')
   }
@@ -138,31 +167,25 @@ async function createTask() {
   }
 }
 
-async function updateTask() {
-  try {
-    const { data } = await apiClient.put(`/tasks/update/${task.id}`, {
-      title: form.title.trim(),
-      description: form.description?.trim(),
-      status: form.status
-    })
-
-    emit('submitted')
-    alert(`Task '${data.title}' updated`)
-    resetForm()
-    emit('cancel')
-  }
-  catch (exception: any) {
-    handleValidationError(exception)
+const buildPayload = (isUpdateMode: boolean) => {
+  return {
+    assignTo: form.assignTo,
+    title: form.title.trim(),
+    description: form.description?.trim(),
+    ...(task.id && { id: task.id }),
+    ...(isUpdateMode && { status: form.status }),
+    ...(userStore.user && { user: userStore.user.username })
   }
 }
 
-function resetForm() {
+const resetForm: void = () => {
   form.title = ''
-  form.description = ''
   form.status = ''
+  form.assignTo = ''
+  form.description = ''
 }
 
-function handleValidationError(exception: any) {
+const handleValidationError: void = (exception: any) => {
   if (exception.response?.status === 400) {
     const errorEntry = Object.entries(exception.response.data)
       .filter(([key]) => key.includes('message'))
@@ -173,6 +196,24 @@ function handleValidationError(exception: any) {
       const [key, value] = errorEntry
       fieldError.title = value as string
     }
+  }
+}
+
+const loadAvailableUsers = async (status?: string) => {
+  try {
+    const params = status ? { taskStatus: status } : undefined
+    const { data } = await apiClient.get('/tasks/availableUsersToTask', { params })
+    availableUsersFromApi.value = data.users
+
+    if (
+      form.assignTo &&
+      !data.users.some((u: User) => u.username === form.assignTo)
+    ) {
+      form.assignTo = ''
+    }
+  }
+  catch (e) {
+    console.error(e)
   }
 }
 </script>

@@ -1,6 +1,7 @@
 package krilovs.andrejs.app.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import krilovs.andrejs.app.dto.AvailableUserResponse;
 import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.ExceptionResponse;
 import krilovs.andrejs.app.dto.FindTaskByStatusRequest;
@@ -31,6 +33,7 @@ import krilovs.andrejs.app.service.task.FindCommand;
 import krilovs.andrejs.app.service.task.ShowTaskStatusesToChangeCommand;
 import krilovs.andrejs.app.service.task.ShowUserAvailableTaskStatusesCommand;
 import krilovs.andrejs.app.service.task.UpdateCommand;
+import krilovs.andrejs.app.service.user.ShowAvailableUsersForTaskCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -151,5 +154,24 @@ public class TaskFacade {
     TaskResponse result = executor.run(UpdateCommand.class, request);
     log.info("Successfully update task '{}' with status '{}'", result, Response.Status.ACCEPTED);
     return Response.status(Response.Status.ACCEPTED).entity(result).build();
+  }
+
+  @GET
+  @Authenticated
+  @Path("/availableUsersToTask")
+  @Operation(summary = "Show available users to assign", description = "Show available users to assign current task")
+  @APIResponses(value = {
+    @APIResponse(responseCode = "200", description = "Available users who can take current task",
+                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = AvailableUserResponse.class))),
+    @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to show available users")
+  })
+  public Response showAvailableUsersForCurrentTask(@QueryParam("taskStatus")
+                                                   @DefaultValue("UNKNOWN")
+                                                   @JsonDeserialize(using = TaskStatusDeserializer.class)
+                                                   TaskStatus taskStatus) {
+    log.info("Requested to show available users who can take current task with status '{}'", taskStatus);
+    AvailableUserResponse response = executor.run(ShowAvailableUsersForTaskCommand.class, taskStatus);
+    log.info("Successfully shown available users for task with status {}. Operation status '{}'", taskStatus, Response.Status.OK);
+    return Response.ok(response).build();
   }
 }

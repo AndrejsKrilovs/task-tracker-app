@@ -4,7 +4,9 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 import krilovs.andrejs.app.dto.UserProfileRequest;
 import krilovs.andrejs.app.entity.Profile;
@@ -13,6 +15,7 @@ import krilovs.andrejs.app.entity.UserRole;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -71,5 +74,19 @@ public class UserRepository {
         profile.setSurname(surname);
       }
     }
+  }
+
+  public List<User> findUsersByRole(List<UserRole> roles) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<User> cq = cb.createQuery(User.class);
+    Root<User> root = cq.from(User.class);
+    root.fetch("profile", JoinType.LEFT);
+
+    if (Objects.nonNull(roles) && !roles.isEmpty()) {
+      cq.where(root.get("role").in(roles));
+    }
+
+    cq.orderBy(cb.asc(root.get("username")));
+    return entityManager.createQuery(cq).getResultList();
   }
 }

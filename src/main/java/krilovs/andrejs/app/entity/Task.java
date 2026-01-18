@@ -50,4 +50,8 @@ public class Task {
   @JoinColumn(name = "tt_user_id")
   @ManyToOne(fetch = FetchType.LAZY)
   User user;
+
+  @JoinColumn(name = "tt_assigned_to")
+  @ManyToOne(fetch = FetchType.LAZY)
+  User assignedTo;
 }

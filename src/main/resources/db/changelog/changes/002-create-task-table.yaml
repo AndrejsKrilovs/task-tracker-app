@@ -66,3 +66,25 @@ databaseChangeLog:
                   name: tt_modified
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
+
+  - changeSet:
+      id: 002-2-added-assigned-to-column
+      author: Andrejs Krilovs
+      changes:
+        - addColumn:
+            schemaName: dev
+            tableName: task_table
+            columns:
+              - column:
+                  name: tt_assigned_to
+                  type: VARCHAR(30)
+        - addForeignKeyConstraint:
+            baseTableName: task_table
+            baseColumnNames: tt_assigned_to
+            baseTableSchemaName: dev
+            constraintName: fk_assign_task_user
+            referencedTableName: user_table
+            referencedColumnNames: ut_username
+            referencedTableSchemaName: dev
+            onDelete: SET NULL
+            schemaName: dev
