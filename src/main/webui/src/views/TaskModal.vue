@@ -86,41 +86,55 @@
 </template>
 
 <script setup lang="ts">
-import { Task, User } from '@/assets/types'
-import { useUserStore } from '@/assets/store'
-import { reactive, ref, onMounted, computed, watch } from 'vue'
 import apiClient from '@/api/axios'
+import { useUserStore } from '@/assets/store'
+import type { Task, User } from '@/assets/types'
+import { reactive, ref, onMounted, computed, watch } from 'vue'
 
 const emit = defineEmits<{ cancel: void; submitted: void }>()
-const props = defineProps<{ task: Task | {} }>()
+const props = defineProps<{ task: Partial<Task> }>()
 
 const userStore = useUserStore()
-const task = props.task as Task
-const isUpdate = computed(() => !!task.id)
+const isUpdate = computed(() => !!props.task.id)
+
 const canAddUpdateTask = computed(() => {
-  const permissions = userStore.user?.userPermissions
-  return task &&
-    task.status != 'COMPLETED' &&
-    permissions ? permissions.some((item) => item === 'CAN_CREATE_TASK') : false
+  const permissions = userStore.user?.userPermissions ?? []
+  return (props.task.status ?? '') !== 'COMPLETED' && permissions.includes('CAN_CREATE_TASK')
 })
 
-const fieldError = reactive<{ [key: string]: string }>({})
 const taskStatusesFromApi = ref<string[]>([])
 const availableUsersFromApi = ref<User[]>([])
+const fieldError = reactive<{ title?: string }>({})
+const normalize = (v: unknown) => String(v ?? '').trim()
 
 const form = reactive({
-  id: task.id || '',
-  title: task.title || '',
-  status: task.status || '',
-  assignTo: task.assignTo || '',
-  description: task.description || ''
+  id: '',
+  title: '',
+  status: '',
+  assignTo: '',
+  description: ''
 })
 
+const fillFormFromTask = (t: Partial<Task>) => {
+  form.id = String(t.id ?? '')
+  fieldError.title = undefined
+  form.title = String(t.title ?? '')
+  form.status = String(t.status ?? '')
+  form.assignTo = String(t.assignTo ?? '')
+  form.description = String(t.description ?? '')
+}
+
+watch(
+  () => props.task,
+  (t) => fillFormFromTask(t ?? {}),
+  { immediate: true, deep: true }
+)
+
 onMounted(async () => {
-	loadAvailableUsers(task.status)
-  if (task.status) {
-    const { data } = await apiClient.get(`/tasks/statusesToChange/${task.status}`)
-    taskStatusesFromApi.value = [task.status, ...data.statuses]
+  await loadAvailableUsers(props.task.status)
+  if (props.task.status) {
+    const { data } = await apiClient.get(`/tasks/statusesToChange/${props.task.status}`)
+    taskStatusesFromApi.value = [props.task.status, ...(data.statuses as string[])]
   }
 })
 
@@ -132,34 +146,34 @@ watch(
   }
 )
 
-const isUnchanged: boolean = () => {
+const isUnchanged = (): boolean => {
+  const t = props.task
   return (
-    task.title === form.title.trim() &&
-    task.status === form.status &&
-    task.assignTo === form.assignTo &&
-    task.description === form.description.trim()
+    normalize(t.title) === normalize(form.title) &&
+    normalize(t.status) === normalize(form.status) &&
+    normalize(t.assignTo) === normalize(form.assignTo) &&
+    normalize(t.description) === normalize(form.description)
   )
 }
 
-const handleSubmit: void = () => {
-  if (isUnchanged()) {
+const handleSubmit = () => {
+  if (isUpdate.value && isUnchanged()) {
     emit('cancel')
     return
   }
-	  submitTask(isUpdate.value)
+	submitTask(isUpdate.value)
 }
 
-const submitTask: void = async(isUpdateMode: boolean) => {
+const submitTask = async (isUpdateMode: boolean) => {
   try {
     const { data } = await apiClient({
       method: isUpdateMode ? 'put' : 'post',
-      url: isUpdateMode ? `/tasks/update` : '/tasks/create',
+      url: isUpdateMode ? '/tasks/update' : '/tasks/create',
       data: buildPayload(isUpdateMode)
     })
 
     emit('submitted')
     alert(`Task '${data.title}' ${isUpdateMode ? 'updated' : 'created'}`)
-    resetForm()
     emit('cancel')
   }
   catch (exception: any) {
@@ -170,30 +184,23 @@ const submitTask: void = async(isUpdateMode: boolean) => {
 const buildPayload = (isUpdateMode: boolean) => {
   return {
     assignTo: form.assignTo,
-    title: form.title.trim(),
-    description: form.description?.trim(),
-    ...(task.id && { id: task.id }),
+    title: normalize(form.title),
+    description: normalize(form.description),
+    ...(form.id && { id: form.id }),
     ...(isUpdateMode && { status: form.status }),
     ...(userStore.user && { user: userStore.user.username })
   }
 }
 
-const resetForm: void = () => {
-  form.title = ''
-  form.status = ''
-  form.assignTo = ''
-  form.description = ''
-}
-
-const handleValidationError: void = (exception: any) => {
+const handleValidationError = (exception: any) => {
   if (exception.response?.status === 400) {
     const errorEntry = Object.entries(exception.response.data)
       .filter(([key]) => key.includes('message'))
-      .flatMap(([, value]) => Object.entries(value))
+      .flatMap(([, value]) => Object.entries(value as Record<string, string>))
       .find(([key]) => key.includes('title'))
 
     if (errorEntry) {
-      const [key, value] = errorEntry
+      const [, value] = errorEntry
       fieldError.title = value as string
     }
   }
@@ -203,12 +210,9 @@ const loadAvailableUsers = async (status?: string) => {
   try {
     const params = status ? { taskStatus: status } : undefined
     const { data } = await apiClient.get('/tasks/availableUsersToTask', { params })
-    availableUsersFromApi.value = data.users
+    availableUsersFromApi.value = data.users as User[]
 
-    if (
-      form.assignTo &&
-      !data.users.some((u: User) => u.username === form.assignTo)
-    ) {
+    if (form.assignTo && !availableUsersFromApi.value.some((u) => u.username === form.assignTo)) {
       form.assignTo = ''
     }
   }
