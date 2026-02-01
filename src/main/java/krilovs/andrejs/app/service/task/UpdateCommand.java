@@ -26,7 +26,7 @@ public class UpdateCommand implements ServiceCommand<CreateUpdateTaskRequest, Ta
   @Transactional
   public TaskResponse execute(CreateUpdateTaskRequest input) {
     Task taskEntity = taskMapper.toEntity(input);
-    taskEntity.setId(input.getId());
+    taskEntity.setId(input.id());
     taskEntity.setModifiedAt(LocalDateTime.now());
     taskRepository.updateTask(taskEntity);
 

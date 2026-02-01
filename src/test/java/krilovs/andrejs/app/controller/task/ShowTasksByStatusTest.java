@@ -49,7 +49,7 @@ class ShowTasksByStatusTest {
       .extract();
 
     jwtCookie = loginResponse.cookie("auth_token");
-    var request = new CreateUpdateTaskRequest("title", "description");
+    var request = new CreateUpdateTaskRequest(null,"title", "description", null, "username");
     RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)

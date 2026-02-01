@@ -43,16 +43,15 @@ class TaskMapperTest {
 
    @Test
   void shouldMapToTaskEntityDefineUser() {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest();
-    request.setId(1L);
-    request.setStatus(TaskStatus.IN_DEVELOPMENT);
-    request.setUser("user");
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(
+      1L, null, null, TaskStatus.IN_DEVELOPMENT, "user"
+    );
     Assertions.assertNotNull(taskMapper.toEntity(request));
   }
 
   @Test
   void shouldMapToTaskEntityEmptyRequest() {
-    Assertions.assertNotNull(taskMapper.toEntity(new CreateUpdateTaskRequest()));
+    Assertions.assertNotNull(taskMapper.toEntity(new CreateUpdateTaskRequest(null, null, null, null, null)));
   }
 
   @Test

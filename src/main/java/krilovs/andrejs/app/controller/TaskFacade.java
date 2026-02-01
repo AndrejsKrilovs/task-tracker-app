@@ -63,9 +63,7 @@ public class TaskFacade {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
     @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to create task")
   })
-  public Response createTask(@Context SecurityContext securityContext,
-                             @Valid CreateUpdateTaskRequest request) {
-    request.setUser(securityContext.getUserPrincipal().getName());
+  public Response createTask(@Valid CreateUpdateTaskRequest request) {
     log.info("Requested to create new task '{}'", request);
     TaskResponse result = executor.run(CreateCommand.class, request);
     log.info("Successfully created task '{}' with status '{}'", result, Response.Status.CREATED);
@@ -135,9 +133,9 @@ public class TaskFacade {
   }
 
   @PUT
-  @Path("/update/{taskId}")
+  @Authenticated
+  @Path("/update")
   @Operation(summary = "Update existing task", description = "Updates existing task with provided credentials")
-  @RolesAllowed({"BUSINESS_ANALYST", "PRODUCT_OWNER", "SCRUM_MASTER", "SOFTWARE_DEVELOPER", "QA_SPECIALIST"})
   @APIResponses(value = {
     @APIResponse(responseCode = "202", description = "Task successfully updated",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskResponse.class))),
@@ -145,11 +143,7 @@ public class TaskFacade {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
     @APIResponse(responseCode = "401", description = "Unauthorized user or user role not allow to update task")
   })
-  public Response updateTask(@Context SecurityContext securityContext,
-                             @PathParam("taskId") Long taskId,
-                             @Valid CreateUpdateTaskRequest request) {
-    request.setId(taskId);
-    request.setUser(securityContext.getUserPrincipal().getName());
+  public Response updateTask(@Valid CreateUpdateTaskRequest request) {
     log.info("Requested to update task '{}'", request);
     TaskResponse result = executor.run(UpdateCommand.class, request);
     log.info("Successfully update task '{}' with status '{}'", result, Response.Status.ACCEPTED);

@@ -6,27 +6,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import krilovs.andrejs.app.entity.TaskStatus;
 import krilovs.andrejs.app.mapper.task.TaskStatusDeserializer;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.FieldDefaults;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@Getter
-@NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Schema(description = "Request to create or update task")
-public class CreateUpdateTaskRequest {
+public record CreateUpdateTaskRequest (
 
-  @Setter
   @Schema(
     title = "Identifier",
     defaultValue = "0",
     description = "Task identifier. This parameter is passed from request path"
   )
-  Long id;
+  Long id,
 
   @NotNull(message = "Title is required")
   @NotBlank(message = "Title is required")
@@ -39,16 +29,15 @@ public class CreateUpdateTaskRequest {
     defaultValue = "Some new task",
     description = "Represents defined task title"
   )
-  String title;
+  String title,
 
   @Schema(
     title = "Description",
     description = "Describe task actions",
     defaultValue = "Some task description"
   )
-  String description;
+  String description,
 
-  @Setter
   @JsonDeserialize(using = TaskStatusDeserializer.class)
   @Schema(
     title = "Status",
@@ -63,19 +52,12 @@ public class CreateUpdateTaskRequest {
       "COMPLETED"
     }
   )
-  TaskStatus status;
+  TaskStatus status,
 
-  @Setter
-  String user;
-
-  public CreateUpdateTaskRequest(String title, String description) {
-    this.title = title;
-    this.description = description;
-  }
-
-  public CreateUpdateTaskRequest(String title, String description, TaskStatus status) {
-    this.title = title;
-    this.description = description;
-    this.status = status;
-  }
-}
+  @Schema(
+    title = "User",
+    description = "User whom assigned this task",
+    defaultValue = "username"
+  )
+  String user
+) {}
