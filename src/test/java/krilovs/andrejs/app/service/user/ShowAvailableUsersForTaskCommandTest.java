@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -49,7 +50,7 @@ class ShowAvailableUsersForTaskCommandTest {
       Arguments.of(TaskStatus.REOPEN, List.of(UserRole.SOFTWARE_DEVELOPER)),
       Arguments.of(TaskStatus.READY_FOR_TEST, List.of(UserRole.QA_SPECIALIST)),
       Arguments.of(TaskStatus.IN_TESTING, List.of(UserRole.QA_SPECIALIST)),
-      Arguments.of(TaskStatus.READY_FOR_DEVELOPMENT, List.of(UserRole.SOFTWARE_DEVELOPER, UserRole.QA_SPECIALIST)),
+      Arguments.of(TaskStatus.READY_FOR_DEVELOPMENT, Arrays.stream(UserRole.values()).toList()),
       Arguments.of(TaskStatus.UNKNOWN, List.of())
     );
   }

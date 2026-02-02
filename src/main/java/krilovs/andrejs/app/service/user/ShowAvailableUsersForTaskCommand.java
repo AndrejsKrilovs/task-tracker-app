@@ -11,6 +11,7 @@ import krilovs.andrejs.app.repository.UserRepository;
 import krilovs.andrejs.app.service.ServiceCommand;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -30,7 +31,7 @@ public class ShowAvailableUsersForTaskCommand implements ServiceCommand<TaskStat
            TaskStatus.REOPEN -> List.of(UserRole.SOFTWARE_DEVELOPER);
       case TaskStatus.READY_FOR_TEST,
            TaskStatus.IN_TESTING -> List.of(UserRole.QA_SPECIALIST);
-      case TaskStatus.READY_FOR_DEVELOPMENT -> List.of(UserRole.SOFTWARE_DEVELOPER, UserRole.QA_SPECIALIST);
+      case TaskStatus.READY_FOR_DEVELOPMENT -> Arrays.stream(UserRole.values()).toList();
       default -> List.of();
     };
 
