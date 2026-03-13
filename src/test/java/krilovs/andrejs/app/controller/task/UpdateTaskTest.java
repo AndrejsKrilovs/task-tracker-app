@@ -55,7 +55,7 @@ class UpdateTaskTest {
     createdTaskId = RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)
-      .body(new CreateUpdateTaskRequest("title", "description"))
+      .body(new CreateUpdateTaskRequest(null, "title", "description", null, "username"))
       .when()
       .post("/api/v1/task-tracker/tasks/create")
       .then()
@@ -76,9 +76,17 @@ class UpdateTaskTest {
     RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)
-      .body(new CreateUpdateTaskRequest("Updated title", "Updated description", TaskStatus.IN_DEVELOPMENT))
+      .body(
+        new CreateUpdateTaskRequest(
+          createdTaskId,
+          "Updated title",
+          "Updated description",
+          TaskStatus.IN_DEVELOPMENT,
+          "username"
+        )
+      )
       .when()
-      .put("/api/v1/task-tracker/tasks/update/%d".formatted(createdTaskId))
+      .put("/api/v1/task-tracker/tasks/update")
       .then()
       .statusCode(202)
       .body("id", Matchers.is(createdTaskId.intValue()))

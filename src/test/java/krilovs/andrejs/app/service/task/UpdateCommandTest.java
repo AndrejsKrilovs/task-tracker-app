@@ -60,9 +60,9 @@ class UpdateCommandTest {
     "Updated task,Some updated description"
   })
   void shouldUpdateTaskSuccessfully(String title, String description) {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(title, description, TaskStatus.IN_DEVELOPMENT);
-    request.setUser("username");
-
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(
+      null, title, description, TaskStatus.IN_DEVELOPMENT, "username"
+    );
     prepareMocks(request);
 
     TaskResponse response = updateCommand.execute(request);

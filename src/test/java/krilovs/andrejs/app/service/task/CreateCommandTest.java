@@ -75,9 +75,7 @@ class CreateCommandTest {
     "Test task,Some task description"
   })
   void shouldRegisterNewTaskSuccessfully(String title, String description) {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(title, description);
-    request.setUser("username");
-
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(null, title, description, null, "username");
     prepareMocks(request);
 
     TaskResponse response = createCommand.execute(request);
@@ -107,16 +105,16 @@ class CreateCommandTest {
 
   static Stream<Arguments> validRequests() {
     return Stream.of(
-      Arguments.of(new CreateUpdateTaskRequest("Some task", null)),
-      Arguments.of(new CreateUpdateTaskRequest("Some new task", "Some description"))
+      Arguments.of(new CreateUpdateTaskRequest(null,"Some task", null, null, null)),
+      Arguments.of(new CreateUpdateTaskRequest(null, "Some new task", "Some description", null, null))
     );
   }
 
   static Stream<Arguments> invalidRequests() {
     return Stream.of(
-      Arguments.of(new CreateUpdateTaskRequest(null, "Description")),
-      Arguments.of(new CreateUpdateTaskRequest("", "Description")),
-      Arguments.of(new CreateUpdateTaskRequest("T", "Short title"))
+      Arguments.of(new CreateUpdateTaskRequest(null, null, "Description", null, null)),
+      Arguments.of(new CreateUpdateTaskRequest(null, "", "Description", null, null)),
+      Arguments.of(new CreateUpdateTaskRequest(null, "T", "Short title", null, null))
     );
   }
 

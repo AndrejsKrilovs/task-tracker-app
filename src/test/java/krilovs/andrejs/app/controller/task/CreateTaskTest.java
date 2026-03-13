@@ -62,7 +62,7 @@ class CreateTaskTest {
 
   @Test
   void shouldCreateNewTaskAndReturnCreated() {
-    var request = new CreateUpdateTaskRequest("title", "description");
+    var request = new CreateUpdateTaskRequest(null,"title", "description", null, "username");
     RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)
@@ -81,7 +81,7 @@ class CreateTaskTest {
 
   @Test
   void shouldNotCreateNewTaskAndReturnUnauthorized() {
-    var request = new CreateUpdateTaskRequest("title", "description");
+    var request = new CreateUpdateTaskRequest(null,"title", "description", null, "test");
     RestAssured.given()
       .contentType(ContentType.JSON)
       .body(request)
@@ -93,7 +93,7 @@ class CreateTaskTest {
 
   @Test
   void shouldNotCreateNewTaskAndReturnBadRequest() {
-    var request = new CreateUpdateTaskRequest(null, null);
+    var request = new CreateUpdateTaskRequest(null, null, null, null, "username");
     RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)
