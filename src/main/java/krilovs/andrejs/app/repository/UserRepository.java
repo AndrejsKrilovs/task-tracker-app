@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 import krilovs.andrejs.app.dto.UserProfileRequest;
 import krilovs.andrejs.app.entity.Profile;
@@ -27,7 +28,19 @@ public class UserRepository {
 
   public Optional<User> findUserByUsername(String username) {
     log.info("Finding if user '{}' exists", username);
-    return Optional.ofNullable(entityManager.find(User.class, username));
+
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<User> query = cb.createQuery(User.class);
+    Root<User> root = query.from(User.class);
+
+    ParameterExpression<String> usernameParam = cb.parameter(String.class, "username");
+    root.fetch("profile", JoinType.LEFT);
+    query.select(root).where(cb.equal(root.get("username"), usernameParam));
+
+    return entityManager.createQuery(query)
+                        .setParameter("username", username)
+                        .getResultStream()
+                        .findFirst();
   }
 
   public void persistUser(User userEntity) {
