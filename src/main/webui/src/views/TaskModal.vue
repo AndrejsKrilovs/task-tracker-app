@@ -26,15 +26,17 @@
               v-model="form.assignTo"
               class="item-select"
             >
+              <option value="">Unassigned</option>
               <option
                 v-for="availableUser in availableUsersFromApi"
                 :key="availableUser.username"
                 :value="availableUser.username"
               >
-                <span v-if="availableUser.name && availableUser.surname">
-                  {{ availableUser.name }} {{ availableUser.surname }}
-                </span>
-                <span v-else>{{ availableUser.username }}</span>
+                {{
+                  availableUser.name && availableUser.surname
+                    ? availableUser.name + ' ' + availableUser.surname
+                    : availableUser.username
+                }}
               </option>
             </select>
           </div>

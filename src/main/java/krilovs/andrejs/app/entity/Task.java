@@ -22,9 +22,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@ToString(exclude = "user")
 @Table(name = "task_table")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ToString(exclude = { "user", "assignedTo" })
 public class Task {
   @Id
   @Column(name = "tt_id")

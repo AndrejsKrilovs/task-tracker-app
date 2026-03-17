@@ -13,6 +13,7 @@ import krilovs.andrejs.app.entity.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -22,6 +23,9 @@ public class TaskRepository {
   EntityManager entityManager;
 
   public void persistTask(Task taskEntity) {
+    if (Objects.isNull(taskEntity.getAssignedTo().getUsername())) {
+      taskEntity.setAssignedTo(null);
+    }
     entityManager.persist(taskEntity);
     log.info("Persisted task '{}' into database", taskEntity.getTitle());
   }
@@ -43,6 +47,9 @@ public class TaskRepository {
     }
     if (taskStatus != TaskStatus.UNKNOWN) {
       update.set("status", taskStatus);
+    }
+    if (Objects.nonNull(taskEntity.getAssignedTo().getUsername())) {
+      update.set("assignedTo", taskEntity.getAssignedTo());
     }
 
     update.set("user", taskEntity.getUser());

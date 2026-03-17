@@ -75,7 +75,7 @@ class CreateCommandTest {
     "Test task,Some task description"
   })
   void shouldRegisterNewTaskSuccessfully(String title, String description) {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(null, title, description, null, "username");
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(null, title, description, null, "username", null);
     prepareMocks(request);
 
     TaskResponse response = createCommand.execute(request);
@@ -105,16 +105,16 @@ class CreateCommandTest {
 
   static Stream<Arguments> validRequests() {
     return Stream.of(
-      Arguments.of(new CreateUpdateTaskRequest(null,"Some task", null, null, null)),
-      Arguments.of(new CreateUpdateTaskRequest(null, "Some new task", "Some description", null, null))
+      Arguments.of(new CreateUpdateTaskRequest(null,"Some task", null, null, null, null)),
+      Arguments.of(new CreateUpdateTaskRequest(null, "Some new task", "Some description", null, null, null))
     );
   }
 
   static Stream<Arguments> invalidRequests() {
     return Stream.of(
-      Arguments.of(new CreateUpdateTaskRequest(null, null, "Description", null, null)),
-      Arguments.of(new CreateUpdateTaskRequest(null, "", "Description", null, null)),
-      Arguments.of(new CreateUpdateTaskRequest(null, "T", "Short title", null, null))
+      Arguments.of(new CreateUpdateTaskRequest(null, null, "Description", null, null, null)),
+      Arguments.of(new CreateUpdateTaskRequest(null, "", "Description", null, null, null)),
+      Arguments.of(new CreateUpdateTaskRequest(null, "T", "Short title", null, null, null))
     );
   }
 
@@ -128,7 +128,8 @@ class CreateCommandTest {
         TaskStatus.READY_FOR_DEVELOPMENT,
         taskEntity.getCreatedAt(),
         taskEntity.getModifiedAt(),
-        userEntity.getUsername()
+        userEntity.getUsername(),
+        null
       )
     );
   }

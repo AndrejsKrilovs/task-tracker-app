@@ -61,7 +61,7 @@ class UpdateCommandTest {
   })
   void shouldUpdateTaskSuccessfully(String title, String description) {
     CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(
-      null, title, description, TaskStatus.IN_DEVELOPMENT, "username"
+      null, title, description, TaskStatus.IN_DEVELOPMENT, "username", null
     );
     prepareMocks(request);
 
@@ -85,7 +85,8 @@ class UpdateCommandTest {
         taskEntity.getStatus(),
         taskEntity.getCreatedAt(),
         taskEntity.getModifiedAt(),
-        userEntity.getUsername()
+        userEntity.getUsername(),
+        null
       )
     );
   }

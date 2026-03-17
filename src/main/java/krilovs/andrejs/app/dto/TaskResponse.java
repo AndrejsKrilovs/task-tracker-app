@@ -67,6 +67,13 @@ public record TaskResponse(
     description = "Username who modified the task",
     defaultValue = "john.doe"
   )
-  String user
+  String user,
+
+  @Schema(
+    title = "Assigned to",
+    description = "Username whom assigned the task",
+    defaultValue = "john.doe"
+  )
+  String assignTo
 
 ) {}

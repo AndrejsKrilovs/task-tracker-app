@@ -55,9 +55,16 @@ public record CreateUpdateTaskRequest (
   TaskStatus status,
 
   @Schema(
-    title = "User",
-    description = "User whom assigned this task",
+    title = "Author",
+    description = "User who created task",
     defaultValue = "username"
   )
-  String user
+  String user,
+
+  @Schema(
+    title = "Assigned user",
+    description = "User whom assigned task",
+    defaultValue = "username"
+  )
+  String assignTo
 ) {}
