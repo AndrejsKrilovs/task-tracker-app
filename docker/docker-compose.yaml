@@ -18,7 +18,7 @@ services:
       - "5432:5432"
 
   pgAdmin:
-    image: dpage/pgadmin4:9.4.0
+    image: dpage/pgadmin4:9.13
     container_name: pg_adm_container
     restart: always
     environment:
@@ -34,7 +34,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.jvm
-    image: andrejskrilovs/task-tracker-app:6.0
+    image: andrejskrilovs/task-tracker-app:7.0
     container_name: task-tracker-app
     restart: always
     depends_on:

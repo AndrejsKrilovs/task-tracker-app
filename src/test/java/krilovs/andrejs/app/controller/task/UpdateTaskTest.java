@@ -55,7 +55,7 @@ class UpdateTaskTest {
     createdTaskId = RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)
-      .body(new CreateUpdateTaskRequest("title", "description"))
+      .body(new CreateUpdateTaskRequest(null, "title", "description", null, "username", null))
       .when()
       .post("/api/v1/task-tracker/tasks/create")
       .then()
@@ -76,15 +76,25 @@ class UpdateTaskTest {
     RestAssured.given()
       .contentType(ContentType.JSON)
       .cookie("auth_token", jwtCookie)
-      .body(new CreateUpdateTaskRequest("Updated title", "Updated description", TaskStatus.IN_DEVELOPMENT))
+      .body(
+        new CreateUpdateTaskRequest(
+          createdTaskId,
+          "Updated title",
+          "Updated description",
+          TaskStatus.IN_DEVELOPMENT,
+          "username",
+          "username"
+        )
+      )
       .when()
-      .put("/api/v1/task-tracker/tasks/update/%d".formatted(createdTaskId))
+      .put("/api/v1/task-tracker/tasks/update")
       .then()
       .statusCode(202)
       .body("id", Matchers.is(createdTaskId.intValue()))
       .body("title", Matchers.equalTo("Updated title"))
       .body("description", Matchers.equalTo("Updated description"))
       .body("status", Matchers.equalTo("IN_DEVELOPMENT"))
-      .body("modifiedAt", Matchers.notNullValue(LocalDateTime.class));
+      .body("modifiedAt", Matchers.notNullValue(LocalDateTime.class))
+      .body("assignTo", Matchers.equalTo("username"));
   }
 }

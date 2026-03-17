@@ -60,9 +60,9 @@ class UpdateCommandTest {
     "Updated task,Some updated description"
   })
   void shouldUpdateTaskSuccessfully(String title, String description) {
-    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(title, description, TaskStatus.IN_DEVELOPMENT);
-    request.setUser("username");
-
+    CreateUpdateTaskRequest request = new CreateUpdateTaskRequest(
+      null, title, description, TaskStatus.IN_DEVELOPMENT, "username", null
+    );
     prepareMocks(request);
 
     TaskResponse response = updateCommand.execute(request);
@@ -85,7 +85,8 @@ class UpdateCommandTest {
         taskEntity.getStatus(),
         taskEntity.getCreatedAt(),
         taskEntity.getModifiedAt(),
-        userEntity.getUsername()
+        userEntity.getUsername(),
+        null
       )
     );
   }

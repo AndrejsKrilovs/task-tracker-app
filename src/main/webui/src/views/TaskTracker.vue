@@ -3,7 +3,7 @@
     <AppHeader
       :user="username"
       :can-create-task="canCreateTask"
-      :show-create-form="showCreateForm"
+      :show-create-form="showTaskModal"
       :view-mode="viewMode"
       v-model:language="language"
       @create="openCreateTask"
@@ -38,18 +38,11 @@
   </div>
 
   <TaskModal
-    v-if="showCreateForm"
-    :task="{}"
-    @cancel="showCreateForm = false"
-    @submitted="showCreateForm = false"
+    v-if="showTaskModal"
+    :task="modalTask"
+    @cancel="closeModal"
+    @submitted="closeModal"
 	/>
-
-  <TaskModal
-    v-if="showUpdateForm"
-    :task="selectedTask!"
-    @cancel="showUpdateForm = false"
-    @submitted="showUpdateForm = false"
-  />
 </template>
 
 <script setup lang="ts">
@@ -66,12 +59,13 @@ const router = useRouter()
 const language = ref('en')
 const modalOpenSignal = ref(0)
 const userStore = useUserStore()
-const showUpdateForm = ref(false)
 const mobileMenuOpen = ref(false)
-const showCreateForm = ref(false)
+const showTaskModal = ref(false)
 const selectedTask = ref<Task | null>(null)
 const availableStatuses = ref<string[]>([])
 const viewMode = ref<'tasks' | 'profile'>('tasks')
+const modalMode = ref<'create' | 'update'>('create')
+const modalTask = computed<Task>(() => selectedTask.value ?? ({} as Task))
 
 const username = computed(() => {
   const usr = userStore.user
@@ -117,26 +111,25 @@ const logout = async () => {
 
 const openCreateFromMobile = () => {
   mobileMenuOpen.value = false
-  showCreateForm.value = true
+  openCreateTask()
 }
 
-const openCreateTask = () => {
-  modalOpenSignal.value++
-  showCreateForm.value = true
-}
+const openTasks = () => (viewMode.value = 'tasks')
+const openCreateTask = () => openModal('create', {})
+const openProfile = () => (viewMode.value = 'profile')
+const openUpdateTask = (task: Task) => openModal('update', task)
 
-const openUpdateTask = (task: Task) => {
+const openModal = (mode: any, task: Task | null = null) => {
+  modalMode.value = mode
   modalOpenSignal.value++
   selectedTask.value = task
-  showUpdateForm.value = true
+  showTaskModal.value = true
 }
 
-const openProfile = () => {
-  viewMode.value = 'profile'
-}
-
-const openTasks = () => {
-  viewMode.value = 'tasks'
+const closeModal = () => {
+  selectedTask.value = null
+  modalMode.value = 'create'
+  showTaskModal.value = false
 }
 </script>
 

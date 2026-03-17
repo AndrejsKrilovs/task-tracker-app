@@ -5,6 +5,7 @@ export interface Task {
   status: string
   createdAt: string
   user: string
+  assignTo: string
 }
 
 export interface User {

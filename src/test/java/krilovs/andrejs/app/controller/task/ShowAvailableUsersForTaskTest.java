@@ -6,26 +6,44 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import krilovs.andrejs.app.dto.CreateUpdateTaskRequest;
 import krilovs.andrejs.app.dto.UserLoginRequest;
 import krilovs.andrejs.app.dto.UserRegistrationRequest;
 import krilovs.andrejs.app.entity.UserRole;
+import krilovs.andrejs.app.service.PasswordService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-class ShowTasksByStatusTest {
+class ShowAvailableUsersForTaskTest {
   @Inject
   EntityManager entityManager;
+
+  @Inject
+  PasswordService passwordService;
   String jwtCookie;
 
   @BeforeEach
   @Transactional
   void setUp() {
-    entityManager.createNativeQuery("delete from test.task_table").executeUpdate();
     entityManager.createNativeQuery("delete from test.user_table").executeUpdate();
+    entityManager.createNativeQuery("insert into test.user_table (ut_username, ut_password, ut_role) values (?1, ?2, ?3)")
+                 .setParameter(1, "user_1")
+                 .setParameter(2, passwordService.hashPassword("password"))
+                 .setParameter(3, UserRole.SOFTWARE_DEVELOPER.name())
+                 .executeUpdate();
+    entityManager.createNativeQuery("insert into test.user_table (ut_username, ut_password, ut_role) values (?1, ?2, ?3)")
+                 .setParameter(1, "user_2")
+                 .setParameter(2, passwordService.hashPassword("password"))
+                 .setParameter(3, UserRole.QA_SPECIALIST.name())
+                 .executeUpdate();
+    entityManager.createNativeQuery("insert into test.user_table (ut_username, ut_password, ut_role) values (?1, ?2, ?3)")
+                 .setParameter(1, "user_3")
+                 .setParameter(2, passwordService.hashPassword("password"))
+                 .setParameter(3, UserRole.PRODUCT_OWNER.name())
+                 .executeUpdate();
+
     var user = new UserRegistrationRequest(
       "username", "hashedPwd", null, UserRole.PRODUCT_OWNER
     );
@@ -49,43 +67,36 @@ class ShowTasksByStatusTest {
       .extract();
 
     jwtCookie = loginResponse.cookie("auth_token");
-    var request = new CreateUpdateTaskRequest(null,"title", "description", null, "username", null);
-    RestAssured.given()
-      .contentType(ContentType.JSON)
-      .cookie("auth_token", jwtCookie)
-      .body(request)
-      .when()
-      .post("/api/v1/task-tracker/tasks/create")
-      .then()
-      .statusCode(201);
   }
 
   @AfterEach
   @Transactional
   void tearDown() {
-    entityManager.createNativeQuery("delete from test.task_table").executeUpdate();
     entityManager.createNativeQuery("delete from test.user_table").executeUpdate();
   }
 
   @Test
-  void shouldShowTasksAndReturnOk() {
+  void shouldShowUsersReturnOk() {
     RestAssured.given()
       .cookie("auth_token", jwtCookie)
       .when()
-      .get("/api/v1/task-tracker/tasks/READY_FOR_DEVELOPMENT")
+      .get("/api/v1/task-tracker/tasks/availableUsersToTask")
       .then()
       .statusCode(200)
-      .body("tasks", Matchers.not(Matchers.empty()))
-      .body("tasksCount", Matchers.is(1));
+      .body("users", Matchers.notNullValue())
+      .body("users", Matchers.hasSize(4));
   }
 
   @Test
-  void shouldNotShowTasksAndReturnUnauthorized() {
+  void shouldShowUsersWithTaskStatusInDevelopmentReturnOk() {
     RestAssured.given()
+      .cookie("auth_token", jwtCookie)
       .contentType(ContentType.JSON)
       .when()
-      .get("/api/v1/task-tracker/tasks/READY_FOR_DEVELOPMENT")
+      .get("/api/v1/task-tracker/tasks/availableUsersToTask?taskStatus=IN_DEVELOPMENT")
       .then()
-      .statusCode(401);
+      .statusCode(200)
+      .body("users", Matchers.notNullValue())
+      .body("users", Matchers.hasSize(1));
   }
 }

@@ -57,7 +57,7 @@ class FindCommandTest {
       taskEntity.getStatus(),
       taskEntity.getCreatedAt(),
       taskEntity.getModifiedAt(),
-      "test_user"
+      "test_user", null
     );
   }
 
