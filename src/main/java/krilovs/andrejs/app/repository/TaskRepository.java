@@ -48,7 +48,7 @@ public class TaskRepository {
     if (taskStatus != TaskStatus.UNKNOWN) {
       update.set("status", taskStatus);
     }
-    if (Objects.nonNull(taskEntity.getAssignedTo().getUsername())) {
+    if (!taskEntity.getAssignedTo().getUsername().isBlank()) {
       update.set("assignedTo", taskEntity.getAssignedTo());
     }
 
